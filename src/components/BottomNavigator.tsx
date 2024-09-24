@@ -2,12 +2,39 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HomeScreen } from 'screens/HomeScreen';
 import { SettingsScreen } from 'screens/SettingsScreen';
 import { DeviceScreen } from 'screens/DeviceScreen';
+import Icon from '@react-native-vector-icons/ionicons';
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomNavigator() {
+    const getRouteIcon = (routeName: string, focused: boolean, color: string) => {
+        let icon = "";
+        switch (routeName) {
+            case "Devices":
+                icon = "car";
+                break;
+            case "Home":
+                icon = "home";
+                break;
+            case "Settings":
+                icon = "settings";
+                break;
+        }
+
+        if (focused) {
+            icon += "-outline";
+        }
+
+        return <Icon name={icon} size={28} color={color} />;
+    };
+
     return (
-        <Tab.Navigator initialRouteName='Home' screenOptions={{ headerShown: false }}>
+        <Tab.Navigator initialRouteName='Home' screenOptions={
+            ({ route }) => ({
+                headerShown: false,
+                tabBarIcon: (focused: boolean, color: string, size: number) => getRouteIcon(route.name, focused, color)
+            })
+        }>
             <Tab.Screen name="Devices" component={DeviceScreen} options={{ title: "Devices" }} />
             <Tab.Screen name="Home" component={HomeScreen} options={{ title: "Home" }} />
             <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: "Settings" }} />
