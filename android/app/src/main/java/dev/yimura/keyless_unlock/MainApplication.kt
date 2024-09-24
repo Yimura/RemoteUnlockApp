@@ -1,4 +1,4 @@
-package com.keylessunlock
+package dev.yimura.keyless_unlock
 
 import android.app.Application
 import android.content.res.Configuration

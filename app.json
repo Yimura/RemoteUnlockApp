@@ -2,7 +2,13 @@
   "expo": {
     "name": "KeylessUnlock",
     "slug": "KeylessUnlock",
-    "version": "1.0.0"
+    "version": "0.1.0",
+    "android": {
+      "package": "dev.yimura.keyless_unlock"
+    },
+    "ios": {
+      "bundleIdentifier": "dev.yimura.keyless-unlock"
+    }
   },
   "name": "KeylessUnlock"
 }

@@ -1,0 +1,17 @@
+{
+    "dockerFile": "./Dockerfile",
+    "remoteUser": "node",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint"
+            ],
+            "settings": {}
+        }
+    },
+    "runArgs": [
+        "--privileged", // maybe required to USB access, maybe not?
+        "--network=host" // so we can access the ADB server running on the host
+    ],
+    "postAttachCommand": "npm i --silent" // required for the Frida extension
+}

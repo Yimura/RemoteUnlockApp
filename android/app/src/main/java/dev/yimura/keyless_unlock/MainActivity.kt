@@ -1,4 +1,4 @@
-package com.keylessunlock
+package dev.yimura.keyless_unlock
 
 import android.os.Build
 import android.os.Bundle
