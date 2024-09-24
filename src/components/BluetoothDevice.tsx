@@ -1,6 +1,6 @@
 import { Button, StyleSheet, Text, View, ViewProps } from "react-native";
-import ColumnGrid from "./ColumnGrid";
-import RowGrid from "./RowGrid";
+import ColumnGrid from "./common/ColumnGrid";
+import RowGrid from "./common/RowGrid";
 
 const styles = StyleSheet.create({
     card: {
