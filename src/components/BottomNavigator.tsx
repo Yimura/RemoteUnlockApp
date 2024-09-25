@@ -7,8 +7,8 @@ import Icon from '@react-native-vector-icons/ionicons';
 const Tab = createBottomTabNavigator();
 
 export default function BottomNavigator() {
-    const getRouteIcon = (routeName: string, focused: boolean, color: string) => {
-        let icon = "";
+    const getRouteIcon = (routeName: string, { focused, color, size }: { focused: boolean, color: string, size: number }) => {
+        let icon: string = "";
         switch (routeName) {
             case "Devices":
                 icon = "car";
@@ -25,14 +25,14 @@ export default function BottomNavigator() {
             icon += "-outline";
         }
 
-        return <Icon name={icon} size={28} color={color} />;
+        return <Icon name={icon} size={size} color={color} />;
     };
 
     return (
         <Tab.Navigator initialRouteName='Home' screenOptions={
             ({ route }) => ({
                 headerShown: false,
-                tabBarIcon: (focused: boolean, color: string, size: number) => getRouteIcon(route.name, focused, color)
+                tabBarIcon: (props) => getRouteIcon(route.name, props)
             })
         }>
             <Tab.Screen name="Devices" component={DeviceScreen} options={{ title: "Devices" }} />
