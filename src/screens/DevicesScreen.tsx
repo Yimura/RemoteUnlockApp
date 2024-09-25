@@ -1,4 +1,5 @@
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { NavigationProp } from "@react-navigation/native";
 import BluetoothDevice from "components/BluetoothDevice";
 import { ALLOW_DUPLICATES, SECONDS_TO_SCAN_FOR, SERVICE_UUIDS } from "constants/BluetoothConstants";
 import { useEffect, useState } from "react";
@@ -13,7 +14,7 @@ const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 const nullFunc = () => { };
 
-export const DevicesScreen = () => {
+export const DevicesScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [scanning, setScanning] = useState(false);
 
@@ -72,12 +73,16 @@ export const DevicesScreen = () => {
 
     const onRefresh = startScan;
 
+    const renderItem = ({ item }: { item: Peripheral }) => {
+        return <BluetoothDevice item={item} onPress={() => navigation.navigate('deviceScreen', { item })} />
+    };
+
     return (
         <FlatList
             data={Array.from(peripherals.values())}
-            renderItem={BluetoothDevice}
+            renderItem={renderItem}
             keyExtractor={item => item.id}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            refreshControl={< RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             contentContainerStyle={styles.container}
             style={{
                 padding: 16,

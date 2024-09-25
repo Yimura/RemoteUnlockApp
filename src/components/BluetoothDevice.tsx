@@ -3,25 +3,7 @@ import ColumnGrid from "./common/ColumnGrid";
 import RowGrid from "./common/RowGrid";
 import { Peripheral } from "react-native-ble-manager";
 
-const styles = StyleSheet.create({
-    card: {
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-
-        backgroundColor: '#0002',
-        borderRadius: 8
-    },
-    device_mac: {
-        fontSize: 11,
-        color: '#3c3c3c'
-    }
-});
-
-export default function BluetoothDevice({ item }: { item: Peripheral }) {
-    const onPress = (event: GestureResponderEvent) => {
-
-    };
-
+export default function BluetoothDevice({ item, onPress }: { item: Peripheral, onPress?: ((event: GestureResponderEvent) => void) | undefined }) {
     return (
         <View style={styles.card}>
             <RowGrid style={{ gap: 8 }}>
@@ -39,3 +21,17 @@ export default function BluetoothDevice({ item }: { item: Peripheral }) {
         </View >
     );
 }
+
+const styles = StyleSheet.create({
+    card: {
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+
+        backgroundColor: '#0002',
+        borderRadius: 8
+    },
+    device_mac: {
+        fontSize: 11,
+        color: '#3c3c3c'
+    }
+});
