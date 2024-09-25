@@ -11,7 +11,7 @@ export default function BottomNavigator() {
         let icon: string = "";
         switch (routeName) {
             case "Devices":
-                icon = "car";
+                icon = "bluetooth";
                 break;
             case "Home":
                 icon = "home";
@@ -32,7 +32,7 @@ export default function BottomNavigator() {
         <Tab.Navigator initialRouteName='Home' screenOptions={
             ({ route }) => ({
                 headerShown: false,
-                tabBarIcon: (props) => getRouteIcon(route.name, props)
+                tabBarIcon: (props) => getRouteIcon(route.name, props),
             })
         }>
             <Tab.Screen name="Devices" component={DeviceScreen} options={{ title: "Devices" }} />

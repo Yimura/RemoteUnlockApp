@@ -1,10 +1,10 @@
 import { Button, StyleSheet, Text, View, ViewProps } from "react-native";
 import ColumnGrid from "./common/ColumnGrid";
 import RowGrid from "./common/RowGrid";
+import { Peripheral } from "react-native-ble-manager";
 
 const styles = StyleSheet.create({
     card: {
-        margin: 16,
         paddingHorizontal: 16,
         paddingVertical: 16,
 
@@ -17,13 +17,7 @@ const styles = StyleSheet.create({
     }
 });
 
-interface BluetoothDeviceInformation {
-    name: String;
-    identifier: String;
-    rssi: Number;
-};
-
-export default function BluetoothDevice({ name, identifier, rssi }: BluetoothDeviceInformation) {
+export default function BluetoothDevice({ item }: { item: Peripheral }) {
     const onPress = () => {
         console.info("Device was pressed");
     };
@@ -32,11 +26,11 @@ export default function BluetoothDevice({ name, identifier, rssi }: BluetoothDev
         <RowGrid style={{ gap: 8 }}>
             <ColumnGrid>
                 <View>
-                    <Text>{name}</Text>
-                    <Text style={styles.device_mac}>{identifier}</Text>
+                    <Text>{item.name ?? "Unknown"}</Text>
+                    <Text style={styles.device_mac}>{item.id}</Text>
                 </View>
                 <View>
-                    <Text>RSSI: {`${rssi}db`}</Text>
+                    <Text>RSSI: {`${item.rssi}db`}</Text>
                 </View>
             </ColumnGrid>
             <Button title="Connect" onPress={onPress} />
