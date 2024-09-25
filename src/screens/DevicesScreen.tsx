@@ -13,7 +13,7 @@ const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 const nullFunc = () => { };
 
-export const DeviceScreen = () => {
+export const DevicesScreen = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [scanning, setScanning] = useState(false);
 
@@ -22,9 +22,7 @@ export const DeviceScreen = () => {
     );
 
     const handleDiscoverPeripheral = (peripheral: Peripheral) => {
-        if (!peripheral.name) {
-            peripheral.name = "Unknown";
-        }
+        peripheral.name ??= "Unknown";
 
         setPeripherals(map => new Map(map.set(peripheral.id, peripheral)));
     };

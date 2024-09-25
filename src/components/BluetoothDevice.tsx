@@ -1,4 +1,4 @@
-import { Button, StyleSheet, Text, View, ViewProps } from "react-native";
+import { Button, GestureResponderEvent, StyleSheet, Text, View } from "react-native";
 import ColumnGrid from "./common/ColumnGrid";
 import RowGrid from "./common/RowGrid";
 import { Peripheral } from "react-native-ble-manager";
@@ -18,22 +18,24 @@ const styles = StyleSheet.create({
 });
 
 export default function BluetoothDevice({ item }: { item: Peripheral }) {
-    const onPress = () => {
-        console.info("Device was pressed");
+    const onPress = (event: GestureResponderEvent) => {
+
     };
 
-    return <View style={styles.card}>
-        <RowGrid style={{ gap: 8 }}>
-            <ColumnGrid>
-                <View>
-                    <Text>{item.name ?? "Unknown"}</Text>
-                    <Text style={styles.device_mac}>{item.id}</Text>
-                </View>
-                <View>
-                    <Text>RSSI: {`${item.rssi}db`}</Text>
-                </View>
-            </ColumnGrid>
-            <Button title="Connect" onPress={onPress} />
-        </RowGrid>
-    </View >;
+    return (
+        <View style={styles.card}>
+            <RowGrid style={{ gap: 8 }}>
+                <ColumnGrid>
+                    <View>
+                        <Text>{item.name}</Text>
+                        <Text style={styles.device_mac}>{item.id}</Text>
+                    </View>
+                    <View>
+                        <Text>RSSI: {`${item.rssi}db`}</Text>
+                    </View>
+                </ColumnGrid>
+                <Button title="Connect" onPress={onPress} />
+            </RowGrid>
+        </View >
+    );
 }

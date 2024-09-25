@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HomeScreen } from 'screens/HomeScreen';
 import { SettingsScreen } from 'screens/SettingsScreen';
-import { DeviceScreen } from 'screens/DeviceScreen';
+import { DevicesScreen } from 'screens/DevicesScreen';
 import Icon from '@react-native-vector-icons/ionicons';
 
 const Tab = createBottomTabNavigator();
@@ -35,7 +35,7 @@ export default function BottomNavigator() {
                 tabBarIcon: (props) => getRouteIcon(route.name, props),
             })
         }>
-            <Tab.Screen name="Devices" component={DeviceScreen} options={{ title: "Devices" }} />
+            <Tab.Screen name="Devices" component={DevicesScreen} options={{ title: "Devices" }} />
             <Tab.Screen name="Home" component={HomeScreen} options={{ title: "Home" }} />
             <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: "Settings" }} />
         </Tab.Navigator>
