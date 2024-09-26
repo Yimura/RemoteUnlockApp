@@ -1,12 +1,10 @@
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { NavigationProp } from "@react-navigation/native";
-import BluetoothDevice from "components/BluetoothDevice";
+import NewBluetoothDevice from "components/NewBluetoothDevice";
 import { ALLOW_DUPLICATES, SECONDS_TO_SCAN_FOR, SERVICE_UUIDS } from "constants/BluetoothConstants";
 import { useEffect, useState } from "react";
 import { EmitterSubscription, FlatList, NativeEventEmitter, NativeModules, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { BleScanCallbackType, BleScanMatchMode, BleScanMode, Peripheral } from "react-native-ble-manager";
 import BleManager from "react-native-ble-manager";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { handleAndroidPermissions } from "util/BluetoothUtils";
 
 const BleManagerModule = NativeModules.BleManager;
@@ -25,7 +23,7 @@ export const DevicesScreen = ({ navigation }: { navigation: NavigationProp<any> 
     const handleDiscoverPeripheral = (peripheral: Peripheral) => {
         peripheral.name ??= "Unknown";
 
-        setPeripherals(map => new Map(map.set(peripheral.id, peripheral)));
+        setPeripherals(map => map.set(peripheral.id, peripheral));
     };
 
     const handleStopScan = () => {
@@ -38,6 +36,8 @@ export const DevicesScreen = ({ navigation }: { navigation: NavigationProp<any> 
             console.debug("A scan is already in progress.");
             return;
         }
+
+        setPeripherals(new Map<Peripheral['id'], Peripheral>());
 
         setRefreshing(true);
         setScanning(true);
@@ -74,7 +74,7 @@ export const DevicesScreen = ({ navigation }: { navigation: NavigationProp<any> 
     const onRefresh = startScan;
 
     const renderItem = ({ item }: { item: Peripheral }) => {
-        return <BluetoothDevice item={item} onPress={() => navigation.navigate('deviceScreen', { item })} />
+        return <NewBluetoothDevice item={item} onPress={() => navigation.navigate('deviceScreen', { item })} />
     };
 
     return (

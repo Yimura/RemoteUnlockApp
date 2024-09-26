@@ -3,7 +3,7 @@ import ColumnGrid from "./common/ColumnGrid";
 import RowGrid from "./common/RowGrid";
 import { Peripheral } from "react-native-ble-manager";
 
-export default function BluetoothDevice({ item, onPress }: { item: Peripheral, onPress?: ((event: GestureResponderEvent) => void) | undefined }) {
+export default function NewBluetoothDevice({ item, onPress }: { item: Peripheral, onPress?: ((event: GestureResponderEvent) => void) | undefined }) {
     return (
         <View style={styles.card}>
             <RowGrid style={{ gap: 8 }}>
