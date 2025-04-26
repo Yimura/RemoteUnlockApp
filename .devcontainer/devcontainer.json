@@ -9,6 +9,9 @@
             "settings": {}
         }
     },
+    "mounts": [
+        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/node/.ssh,readonly,type=bind"
+    ],
     "runArgs": [
         "--privileged", // maybe required to USB access, maybe not?
         "--network=host" // so we can access the ADB server running on the host
