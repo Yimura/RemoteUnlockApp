@@ -1,7 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Car, Settings } from 'lucide-react-native';
 import React from 'react';
-import { View } from 'react-native';
+import { MyVehiclesPage } from './pages/MyVehiclesPage';
+import { SettingsPage } from './pages/SettingsPage';
 
 interface TabBarIconProps {
     focused: boolean;
@@ -19,12 +20,12 @@ export const Navigator = (): React.JSX.Element => {
         <Tab.Navigator>
             <Tab.Screen
                 name="My Vehicles"
-                component={View}
+                component={MyVehiclesPage}
                 options={{ tabBarIcon: carIcon }}
             />
             <Tab.Screen
                 name="Settings"
-                component={View}
+                component={SettingsPage}
                 options={{ tabBarIcon: settingsIcon }}
             />
         </Tab.Navigator>
