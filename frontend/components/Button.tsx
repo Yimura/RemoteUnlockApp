@@ -1,10 +1,15 @@
 import React from 'react';
 import { Pressable, PressableProps, StyleSheet } from 'react-native';
+import type { PressableStateCallbackType } from 'react-native';
 
 
 export function Button(props: PressableProps): React.JSX.Element {
+    const setStyle = ({ pressed }: PressableStateCallbackType) => {
+        return StyleSheet.flatten([styles.button, pressed ? styles.buttonTouch : {}]);
+    };
+
     return (
-        <Pressable {...props} style={styles.button} />
+        <Pressable {...props} style={setStyle} />
     );
 }
 
@@ -20,5 +25,8 @@ const styles = StyleSheet.create({
         gap: 8,
 
         borderRadius: 4,
+    },
+    buttonTouch: {
+        backgroundColor: '#f8f8f8',
     },
 });
