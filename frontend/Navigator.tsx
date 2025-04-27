@@ -9,7 +9,7 @@ interface TabBarIconProps {
     size: number;
 }
 
-export const Core = (): React.JSX.Element => {
+export const Navigator = (): React.JSX.Element => {
     const Tab = createBottomTabNavigator();
 
     const carIcon = (props: TabBarIconProps) => <Car {...props} />;

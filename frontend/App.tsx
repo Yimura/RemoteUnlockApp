@@ -6,7 +6,7 @@ import {
     // useColorScheme,
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Core } from './Core';
+import { Navigator } from './Navigator';
 
 function App(): React.JSX.Element {
     // const _isDarkMode = useColorScheme() === 'dark';
@@ -17,7 +17,7 @@ function App(): React.JSX.Element {
         <SafeAreaProvider style={styles.body}>
             <NavigationContainer>
                 <Stack.Navigator screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="Core" component={Core} />
+                    <Stack.Screen name="MainNavigator" component={Navigator} />
                 </Stack.Navigator>
             </NavigationContainer>
         </SafeAreaProvider>
