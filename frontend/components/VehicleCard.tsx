@@ -1,8 +1,8 @@
 import React from 'react';
 import { ColorValue, StyleSheet, Text, View } from 'react-native';
-import { IconButton } from './IconButton';
+import { IconButton } from './core/IconButton';
 import { BatteryMedium, Circle, Clock4, Lock, Settings, Unlock } from 'lucide-react-native';
-import { Button } from './Button';
+import { Button } from './core/Button';
 
 interface IndicatorProps {
     color: ColorValue,
