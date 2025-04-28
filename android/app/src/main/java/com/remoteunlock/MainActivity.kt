@@ -1,4 +1,4 @@
-package com.remoteunlock
+package sh.damon.remoteunlock
 
 import android.os.Bundle;
 import com.facebook.react.ReactActivity

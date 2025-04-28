@@ -1,4 +1,4 @@
-package com.remoteunlock
+package sh.damon.remoteunlock
 
 import android.app.Application
 import com.facebook.react.PackageList
