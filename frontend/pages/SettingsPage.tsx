@@ -1,32 +1,9 @@
 import React from 'react';
-import { StyleSheet, Switch, SwitchProps, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '../components/core/Card';
-import { Blue, Grey, OffBlue, OffWhite, White } from '../theme/Color';
+import { Blue, Grey, OffBlue, OffWhite } from '../theme/Color';
 import { Button } from '../components/core/Button';
-
-interface SettingItemProps {
-    label: string;
-    description: string;
-    onChange?: SwitchProps['onChange'];
-    value?: boolean;
-}
-
-const SettingItem = ({ label, description, onChange, value }: SettingItemProps): React.JSX.Element => {
-    return (
-        <View style={styles.settingItem}>
-            <View style={styles.settingItemText}>
-                <Text>{label}</Text>
-                <Text style={styles.description}>{description}</Text>
-            </View>
-            <View>
-                <Switch trackColor={{
-                    true: Blue,
-                    false: Grey,
-                }} thumbColor={White} onChange={onChange} value={value} />
-            </View>
-        </View>
-    );
-};
+import { SettingItem } from '../components/settings/SettingItem';
 
 export function SettingsPage(): React.JSX.Element {
     return (
@@ -67,13 +44,5 @@ const styles = StyleSheet.create({
     },
     settingsItems: {
         gap: 8,
-    },
-    settingItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 8,
-    },
-    settingItemText: {
-        flex: 1,
     },
 });
