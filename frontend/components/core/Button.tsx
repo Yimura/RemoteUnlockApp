@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, PressableProps, StyleSheet } from 'react-native';
 import type { PressableStateCallbackType } from 'react-native';
+import { BgColor, BorderColor } from '../../theme/Theme';
 
 
 export function Button(props: PressableProps): React.JSX.Element {
@@ -16,7 +17,7 @@ export function Button(props: PressableProps): React.JSX.Element {
 const styles = StyleSheet.create({
     button: {
         borderWidth: 1,
-        borderColor: '#f1f1f1',
+        borderColor: BorderColor,
         padding: 8,
 
         flexDirection: 'row',
@@ -27,6 +28,6 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     buttonTouch: {
-        backgroundColor: '#f8f8f8',
+        backgroundColor: BgColor,
     },
 });

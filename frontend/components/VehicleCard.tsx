@@ -4,6 +4,8 @@ import { IconButton } from './core/IconButton';
 import { BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, Circle, Clock4, Lock, Settings, Unlock } from 'lucide-react-native';
 import { Button } from './core/Button';
 import { GetTimeAgo } from '../util/Time';
+import { CardBgColor, SmallTextColor } from '../theme/Theme';
+import { Blue, Green, Grey, Orange, Red } from '../theme/Color';
 
 interface IndicatorProps {
     color: ColorValue,
@@ -23,7 +25,7 @@ interface ConnectionIndicatorProps {
     connected: boolean;
 }
 const ConnectionIndicator = ({ connected }: ConnectionIndicatorProps): React.JSX.Element => {
-    const color = connected ? 'rgb(22 163 74)' : 'rgb(239 68 68)';
+    const color = connected ? Green : Red;
     const icon = <Circle color={color} size={10} />;
 
     return <Indicator color={color} icon={icon} label={connected ? 'Connected' : 'Disconnected'} />;
@@ -33,7 +35,7 @@ interface LockIndicatorProps {
     locked: boolean;
 }
 const LockIndicator = ({ locked }: LockIndicatorProps): React.JSX.Element => {
-    const color = locked ? 'rgb(37 99 235)' : 'rgb(217 119 6)';
+    const color = locked ? Blue : Orange;
     const icon = <Circle color={color} size={10} />;
 
     return <Indicator color={color} icon={icon} label={locked ? 'Locked' : 'Unlocked'} />;
@@ -43,18 +45,19 @@ interface BatterIndicatorProps {
     battery: number;
 }
 const BatterIndicator = ({ battery }: BatterIndicatorProps): React.JSX.Element => {
-    let color = 'rgb(22 163 74)';
+    let color = Green;
     let icon = <BatteryCharging color={color} size={16} />;
 
     if (battery < 10.8) {
-        color = 'rgb(239 68 68)';
+        color = Red;
         icon = <BatteryLow color={color} size={16} />;
     }
     else if (battery < 11.5) {
-        color = 'rgb(217 119 6)';
+        color = Orange;
         icon = <BatteryMedium color={color} size={16} />;
     }
     else if (battery < 13) {
+        color = Green;
         icon = <BatteryFull color={color} size={16} />;
     }
 
@@ -65,7 +68,7 @@ interface LastSeenIndicatorProps {
     date: Date;
 }
 const LastSeenIndicator = ({ date }: LastSeenIndicatorProps): React.JSX.Element => {
-    const color = '#888';
+    const color = Grey;
     const icon = <Clock4 color={color} size={16} />;
 
     return <Indicator color={color} icon={icon} label={GetTimeAgo(date)} />;
@@ -118,7 +121,7 @@ const styles = StyleSheet.create({
     container: {
         padding: 16,
         borderRadius: 8,
-        backgroundColor: '#fff',
+        backgroundColor: CardBgColor,
     },
     header: {
         flexDirection: 'row',
@@ -131,7 +134,7 @@ const styles = StyleSheet.create({
     },
     description: {
         fontSize: 10,
-        color: '#888',
+        color: SmallTextColor,
     },
     quickInfo: {
         flexDirection: 'row',

@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Navigator } from './Navigator';
+import { MainBgColor } from './theme/Theme';
 
 function App(): React.JSX.Element {
     // const _isDarkMode = useColorScheme() === 'dark';
@@ -26,7 +27,7 @@ function App(): React.JSX.Element {
 
 const styles = StyleSheet.create({
     body: {
-        backgroundColor: '#f1f1f1',
+        backgroundColor: MainBgColor,
     },
 });
 
