@@ -3,10 +3,14 @@ import { Pressable, PressableProps, StyleSheet } from 'react-native';
 import type { PressableStateCallbackType } from 'react-native';
 import { BgColor, BorderColor } from '../../theme/Theme';
 
-
-export function Button(props: PressableProps): React.JSX.Element {
+export interface ButtonProps extends PressableProps { }
+export function Button(props: ButtonProps): React.JSX.Element {
     const setStyle = ({ pressed }: PressableStateCallbackType) => {
-        return StyleSheet.flatten([styles.button, pressed ? styles.buttonTouch : {}]);
+        if (typeof props.style === 'function') {
+            return StyleSheet.flatten([styles.button, pressed ? styles.buttonTouch : {}, props.style({ pressed })]);
+        }
+
+        return StyleSheet.flatten([props.style, styles.button, pressed ? styles.buttonTouch : {}]);
     };
 
     return (
