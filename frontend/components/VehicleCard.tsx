@@ -1,5 +1,5 @@
 import React from 'react';
-import { ColorValue, StyleSheet, Text, View } from 'react-native';
+import { ColorValue, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { IconButton } from './core/IconButton';
 import { BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, Circle, Clock4, Lock, Settings, Unlock } from 'lucide-react-native';
 import { Button } from './core/Button';
@@ -72,32 +72,35 @@ const LastSeenIndicator = ({ date }: LastSeenIndicatorProps): React.JSX.Element 
 };
 
 export interface VehicleCardProps {
-    model: string;
-    battery: number;
-    connected: boolean;
-    locked: boolean;
-    lastConnected: Date;
+    vehicle: {
+        model: string;
+        battery: number;
+        connected: boolean;
+        locked: boolean;
+        lastConnected: Date;
+    };
+    style: ViewStyle;
 }
-export function VehicleCard({ model, battery, connected, locked, lastConnected }: VehicleCardProps): React.JSX.Element {
+export function VehicleCard({ vehicle, style }: VehicleCardProps): React.JSX.Element {
     return (
-        <View style={styles.container}>
+        <View style={StyleSheet.flatten([styles.container, style])}>
             <View style={styles.header}>
                 <View>
-                    <Text style={styles.title}>{model}</Text>
+                    <Text style={styles.title}>{vehicle.model}</Text>
                     <Text style={styles.description}>BLE Unlock Std • Auto-lock enabled</Text>
                 </View>
                 <View>
                     <Button onPress={() => { }}>
-                        <Text>{connected ? 'Disconnect' : 'Connect'}</Text>
+                        <Text>{vehicle.connected ? 'Disconnect' : 'Connect'}</Text>
                     </Button>
                 </View>
             </View>
             <View style={styles.quickInfo}>
                 <View>
-                    <ConnectionIndicator connected={connected} />
-                    <LockIndicator locked={locked} />
-                    <BatterIndicator battery={battery} />
-                    <LastSeenIndicator date={lastConnected} />
+                    <ConnectionIndicator connected={vehicle.connected} />
+                    <LockIndicator locked={vehicle.locked} />
+                    <BatterIndicator battery={vehicle.battery} />
+                    <LastSeenIndicator date={vehicle.lastConnected} />
                 </View>
                 <View style={styles.lockButtons}>
                     <IconButton icon={<Unlock size={16} />} />
