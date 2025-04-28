@@ -4,8 +4,9 @@ import { IconButton } from './core/IconButton';
 import { BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, Circle, Clock4, Lock, Settings, Unlock } from 'lucide-react-native';
 import { Button } from './core/Button';
 import { GetTimeAgo } from '../util/Time';
-import { CardBgColor, SmallTextColor } from '../theme/Theme';
+import { SmallTextColor } from '../theme/Theme';
 import { Blue, Green, Grey, Orange, Red } from '../theme/Color';
+import { Card } from './core/Card';
 
 interface IndicatorProps {
     color: ColorValue,
@@ -86,7 +87,7 @@ export interface VehicleCardProps {
 }
 export function VehicleCard({ vehicle, style }: VehicleCardProps): React.JSX.Element {
     return (
-        <View style={StyleSheet.flatten([styles.container, style])}>
+        <Card style={style}>
             <View style={styles.header}>
                 <View>
                     <Text style={styles.title}>{vehicle.model}</Text>
@@ -113,16 +114,11 @@ export function VehicleCard({ vehicle, style }: VehicleCardProps): React.JSX.Ele
             <View>
                 <IconButton icon={<Settings size={16} />} label="Device Settings" />
             </View>
-        </View>
+        </Card>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        padding: 16,
-        borderRadius: 8,
-        backgroundColor: CardBgColor,
-    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
