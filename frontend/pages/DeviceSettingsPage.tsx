@@ -1,0 +1,86 @@
+import React, { useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Card } from '../components/core/Card';
+import { Black, BrokenWhite, OffRed, Red, White } from '../theme/Color';
+import { IconButton } from '../components/core/IconButton';
+import { Trash2 } from 'lucide-react-native';
+import { Title } from '../components/text/Title';
+import { Description } from '../components/text/Description';
+import { Button } from '../components/core/Button';
+import { SettingItem } from '../components/settings/SettingItem';
+
+export function DeviceSettingsPage(): React.JSX.Element {
+    const [deviceName, setDeviceName] = useState('BMW E36');
+
+    return (
+        <View style={styles.container}>
+            <Card style={styles.deviceSettings}>
+                <View style={styles.deviceSettingsHeader}>
+                    <View>
+                        <Title>Device Information</Title>
+                        <Description>Configure your device settings</Description>
+                    </View>
+                    <Button>
+                        <Text>Disconnect</Text>
+                    </Button>
+                </View>
+                <View>
+                    <Text>Device Name</Text>
+                    <TextInput style={styles.input} onChangeText={setDeviceName} value={deviceName} />
+                </View>
+                <View>
+                    <SettingItem label="Automatic Lock/Unlock" description="Automatically lock/unlock based on proximity." value={true} />
+                </View>
+                <Button>
+                    <Text>Save Changes</Text>
+                </Button>
+            </Card>
+            <Card style={styles.deviceRemove}>
+                <View>
+                    <Title style={{ color: Red }}>Danger Zone</Title>
+                    <Description>Remove this device from your paired devices.</Description>
+                </View>
+                <IconButton icon={<Trash2 size={16} color={White} />} label="Remove Device" style={({ pressed }) => pressed ? styles.deviceRemoveBtnPressed : styles.deviceRemoveBtn} textStyle={styles.deviceRemoveBtnTxt} />
+            </Card>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        padding: 16,
+        gap: 16,
+    },
+    deviceSettings: {
+        gap: 16,
+    },
+    deviceSettingsHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    input: {
+        borderWidth: 1,
+        borderRadius: 4,
+        borderColor: BrokenWhite,
+
+        color: Black,
+
+        margin: 0,
+        padding: 8,
+    },
+    deviceRemove: {
+        borderColor: Red,
+        borderWidth: 1,
+
+        gap: 16,
+    },
+    deviceRemoveBtn: {
+        backgroundColor: Red,
+    },
+    deviceRemoveBtnPressed: {
+        backgroundColor: OffRed,
+    },
+    deviceRemoveBtnTxt: {
+        color: White,
+    },
+});

@@ -4,9 +4,11 @@ import { IconButton } from './core/IconButton';
 import { BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, Circle, Clock4, Lock, Settings, Unlock } from 'lucide-react-native';
 import { Button } from './core/Button';
 import { GetTimeAgo } from '../util/Time';
-import { SmallTextColor } from '../theme/Theme';
 import { Blue, Green, Grey, Orange, Red } from '../theme/Color';
 import { Card } from './core/Card';
+import { useNavigation } from '@react-navigation/native';
+import { Title } from './text/Title';
+import { Description } from './text/Description';
 
 interface IndicatorProps {
     color: ColorValue,
@@ -86,12 +88,14 @@ export interface VehicleCardProps {
     style: ViewStyle;
 }
 export function VehicleCard({ vehicle, style }: VehicleCardProps): React.JSX.Element {
+    const navigator = useNavigation();
+
     return (
         <Card style={style}>
             <View style={styles.header}>
                 <View>
-                    <Text style={styles.title}>{vehicle.model}</Text>
-                    <Text style={styles.description}>BLE Unlock Std • Auto-lock enabled</Text>
+                    <Title>{vehicle.model}</Title>
+                    <Description>BLE Unlock Std • Auto-lock enabled</Description>
                 </View>
                 <View>
                     <Button onPress={() => { }}>
@@ -112,7 +116,7 @@ export function VehicleCard({ vehicle, style }: VehicleCardProps): React.JSX.Ele
                 </View>
             </View>
             <View>
-                <IconButton icon={<Settings size={16} />} label="Device Settings" />
+                <IconButton icon={<Settings size={16} />} label="Device Settings" onPress={() => navigator.navigate('Device Settings')} />
             </View>
         </Card>
     );
@@ -123,14 +127,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: 600,
-    },
-    description: {
-        fontSize: 10,
-        color: SmallTextColor,
     },
     quickInfo: {
         flexDirection: 'row',

@@ -3,6 +3,7 @@ export const OffBlue: string = 'rgb(68, 122, 238)';
 export const Green: string = 'rgb(22, 163, 74)';
 export const Orange: string = 'rgb(217, 119, 6)';
 export const Red: string = 'rgb(239, 68, 68)';
+export const OffRed: string = 'rgb(241, 91, 91)';
 
 export const Black: string = '#000';
 export const Grey: string = '#888';
