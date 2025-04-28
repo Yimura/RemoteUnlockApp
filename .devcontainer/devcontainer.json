@@ -16,6 +16,7 @@
         "--privileged", // maybe required to USB access, maybe not?
         "--network=host" // so we can access the ADB server running on the host
     ],
+    "initializeCommand": "adb devices || true", // make sure the adb server is running on the host before the container starts
     "postAttachCommand": {
         "accept_licenses": "yes | sdkmanager --licenses",
         "npm_install": "npm i --silent"
