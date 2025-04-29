@@ -8,9 +8,11 @@ import { Title } from '../components/text/Title';
 import { Description } from '../components/text/Description';
 import { Button } from '../components/core/Button';
 import { SettingItem } from '../components/settings/SettingItem';
+import { Slider } from '../components/core/Slider';
 
 export function DeviceSettingsPage(): React.JSX.Element {
     const [deviceName, setDeviceName] = useState('BMW E36');
+    const [proximityThreshold, setProximityThreshold] = useState(5);
 
     return (
         <View style={styles.container}>
@@ -30,6 +32,18 @@ export function DeviceSettingsPage(): React.JSX.Element {
                 </View>
                 <View>
                     <SettingItem label="Automatic Lock/Unlock" description="Automatically lock/unlock based on proximity." value={true} />
+                </View>
+                <View>
+                    <Text>Proximity Threshold ({proximityThreshold}m)</Text>
+                    <Slider
+                        minimumValue={1}
+                        maximumValue={9}
+                        step={1}
+
+                        onValueChange={([value]) => setProximityThreshold(value)}
+                        value={proximityThreshold}
+                    />
+                    <Description>The vehicle will unlock when you are closer than this distance and lock when you move further away.</Description>
                 </View>
                 <Button>
                     <Text>Save Changes</Text>
