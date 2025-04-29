@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card } from '../components/core/Card';
-import { Black, BrokenWhite, OffRed, Red, White } from '../theme/Color';
+import { Black, Blue, BrokenWhite, OffBlue, OffRed, Red, White } from '../theme/Color';
 import { IconButton } from '../components/core/IconButton';
 import { Trash2 } from 'lucide-react-native';
 import { Title } from '../components/text/Title';
@@ -45,8 +45,8 @@ export function DeviceSettingsPage(): React.JSX.Element {
                     />
                     <Description>The vehicle will unlock when you are closer than this distance and lock when you move further away.</Description>
                 </View>
-                <Button>
-                    <Text>Save Changes</Text>
+                <Button style={({ pressed }) => pressed ? styles.saveBtnPressed : styles.saveBtn}>
+                    <Text style={styles.saveTxt}>Save Changes</Text>
                 </Button>
             </Card>
             <Card style={styles.deviceRemove}>
@@ -81,6 +81,15 @@ const styles = StyleSheet.create({
 
         margin: 0,
         padding: 8,
+    },
+    saveTxt: {
+        color: White,
+    },
+    saveBtn: {
+        backgroundColor: Blue,
+    },
+    saveBtnPressed: {
+        backgroundColor: OffBlue,
     },
     deviceRemove: {
         borderColor: Red,
