@@ -27,14 +27,20 @@ export function SettingsPage(): React.JSX.Element {
                 <View style={styles.settingsItems}>
                     <SettingItem label="Run in Background" description="Allow the app to run in the backgrund for auto-lock features." value={true} />
                     <SettingItem label="Notifications" description="Receive notifications when your vehicle is locked or unlocked" value={false} />
-                    <Dropdown label="Bluetooth Scan Interval" helperText="How often the app checks for nearby devices when auto-lock is enabled." options={scanIntervalOptions} onValueChange={(value) => typeof value === 'number' && setScanInterval(value)} selectedValue={scanInterval} />
+                    <Dropdown
+                        label="Bluetooth Scan Interval"
+                        helperText="How often the app checks for nearby devices when auto-lock is enabled."
+                        options={scanIntervalOptions}
+                        onValueChange={(value) => typeof value === 'number' && setScanInterval(value)}
+                        selectedValue={scanInterval}
+                    />
                 </View>
                 <View>
                     <Button style={({ pressed }) => pressed ? { backgroundColor: OffBlue } : { backgroundColor: Blue }}>
                         <Text style={{ color: OffWhite }}>Save Changes</Text>
                     </Button>
                 </View>
-            </Card >
+            </Card>
         </View >
     );
 }
