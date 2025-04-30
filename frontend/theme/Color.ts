@@ -1,5 +1,6 @@
 export const Blue: string = 'rgb(37, 99, 235)';
 export const OffBlue: string = 'rgb(68, 122, 238)';
+export const FadedBlue: string = 'rgb(197, 216, 255)';
 export const Green: string = 'rgb(22, 163, 74)';
 export const Orange: string = 'rgb(217, 119, 6)';
 export const Red: string = 'rgb(239, 68, 68)';
