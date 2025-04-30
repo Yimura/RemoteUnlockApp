@@ -9,6 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Navigator } from './Navigator';
 import { MainBgColor } from './theme/Theme';
 import { DeviceSettingsPage } from './pages/DeviceSettingsPage';
+import { PairDevicePage } from './pages/PairDevicePage';
 
 function App(): React.JSX.Element {
     // const _isDarkMode = useColorScheme() === 'dark';
@@ -21,6 +22,7 @@ function App(): React.JSX.Element {
                 <Stack.Navigator screenOptions={(props) => { return { headerShown: props.route.name !== 'MainNavigator' }; }}>
                     <Stack.Screen name="MainNavigator" component={Navigator} />
                     <Stack.Screen name="Device Settings" component={DeviceSettingsPage} />
+                    <Stack.Screen name="Bluetooth Device Pairing" component={PairDevicePage} />
                 </Stack.Navigator>
             </NavigationContainer>
         </SafeAreaProvider>
