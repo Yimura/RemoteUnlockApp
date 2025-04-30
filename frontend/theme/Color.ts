@@ -9,4 +9,4 @@ export const Black: string = '#000';
 export const Grey: string = '#888';
 export const White: string = '#fff';
 export const OffWhite: string = '#f8f8f8';
-export const BrokenWhite: string = '#f1f1f1';
+export const BrokenWhite: string = '#efefef';
