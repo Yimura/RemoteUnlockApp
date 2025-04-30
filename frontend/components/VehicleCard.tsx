@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ColorValue, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { IconButton } from './core/IconButton';
 import { BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, Circle, Clock4, Lock, Settings, Unlock } from 'lucide-react-native';
-import { Button } from './core/Button';
 import { GetTimeAgo } from '../util/Time';
 import { Blue, Green, Grey, Orange, Red } from '../theme/Color';
 import { Card } from './core/Card';
 import { useNavigation } from '@react-navigation/native';
 import { Title } from './text/Title';
 import { Description } from './text/Description';
+import { LoadingButton } from './core/LoadingButton';
 
 interface IndicatorProps {
     color: ColorValue,
@@ -89,6 +89,7 @@ export interface VehicleCardProps {
 }
 export function VehicleCard({ vehicle, style }: VehicleCardProps): React.JSX.Element {
     const navigator = useNavigation();
+    const [isLoading, setIsLoading] = useState(false);
 
     return (
         <Card style={style}>
@@ -98,9 +99,7 @@ export function VehicleCard({ vehicle, style }: VehicleCardProps): React.JSX.Ele
                     <Description>BLE Unlock Std • Auto-lock enabled</Description>
                 </View>
                 <View>
-                    <Button onPress={() => { }}>
-                        <Text>{vehicle.connected ? 'Disconnect' : 'Connect'}</Text>
-                    </Button>
+                    <LoadingButton label={vehicle.connected ? 'Disconnect' : 'Connect'} isLoading={isLoading} onPress={() => { setIsLoading(true); setTimeout(() => setIsLoading(false), 3e3); }} />
                 </View>
             </View>
             <View style={styles.quickInfo}>
