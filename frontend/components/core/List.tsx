@@ -23,7 +23,7 @@ interface ListProps extends ViewProps {
 export function List({ ListDecorator, children, ...props }: ListProps): React.JSX.Element {
     return (
         <View style={styles.list} {...props}>
-            {children && children.map((item, idx) => <ListItem key={idx} item={item} ListDecorator={ListDecorator} />)}
+            {children.map((item, idx) => <ListItem key={idx} item={item} ListDecorator={ListDecorator} />)}
         </View>
     );
 }
