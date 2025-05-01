@@ -2,6 +2,7 @@ export enum Color {
     Blue = 'rgb(37, 99, 235)',
     OffBlue = 'rgb(68, 122, 238)',
     FadedBlue = 'rgb(197, 216, 255)',
+    WashedBlue = 'rgba(197, 216, 255, 0.2)',
     Green = 'rgb(22, 163, 74)',
     Orange = 'rgb(217, 119, 6)',
     Red = 'rgb(239, 68, 68)',
