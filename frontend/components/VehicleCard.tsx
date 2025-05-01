@@ -6,8 +6,7 @@ import { GetTimeAgo } from '../util/Time';
 import { Color } from '../theme/Color';
 import { Card } from './core/Card';
 import { useNavigation } from '@react-navigation/native';
-import { Title } from './text/Title';
-import { Description } from './text/Description';
+import { Description, Title } from './text';
 import { LoadingButton } from './core/LoadingButton';
 
 interface IndicatorProps {

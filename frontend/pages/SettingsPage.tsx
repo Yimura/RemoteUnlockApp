@@ -5,6 +5,7 @@ import { Color } from '../theme/Color';
 import { Button } from '../components/core/Button';
 import { SettingItem } from '../components/settings/SettingItem';
 import { Dropdown } from '../components/core/Dropdown';
+import { Description, Title } from '../components/text';
 
 export function SettingsPage(): React.JSX.Element {
     const scanIntervalOptions = [
@@ -21,8 +22,8 @@ export function SettingsPage(): React.JSX.Element {
         <View style={styles.container}>
             <Card style={styles.card}>
                 <View>
-                    <Text style={styles.title}>App Settings</Text>
-                    <Text style={styles.description}>Configure how the application behaves.</Text>
+                    <Title>App Settings</Title>
+                    <Description>Configure how the application behaves.</Description>
                 </View>
                 <View style={styles.settingsItems}>
                     <SettingItem label="Run in Background" description="Allow the app to run in the backgrund for auto-lock features." value={true} />
@@ -51,14 +52,6 @@ const styles = StyleSheet.create({
     },
     card: {
         gap: 16,
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: 600,
-    },
-    description: {
-        fontSize: 12,
-        color: Color.Grey,
     },
     settingsItems: {
         gap: 8,

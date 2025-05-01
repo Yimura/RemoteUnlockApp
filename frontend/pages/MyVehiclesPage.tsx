@@ -1,7 +1,7 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { VehicleCard, VehicleCardProps } from '../components/VehicleCard';
-import { Title } from '../components/text/Title';
+import { Title } from '../components/text';
 import { Button } from '../components/core/Button';
 import { Color } from '../theme/Color';
 import { useNavigation } from '@react-navigation/native';
