@@ -12,10 +12,10 @@ interface IconButtonProps extends PressableProps {
     onLongPress?: () => void;
 }
 
-export function IconButton({ icon, label, right = false, style, textStyle, onPress, onLongPress }: IconButtonProps): React.JSX.Element {
+export function IconButton({ icon, label, right = false, style, textStyle, onPress, onLongPress, ...props }: IconButtonProps): React.JSX.Element {
 
     return (
-        <Button style={style} onPress={onPress} onLongPress={onLongPress}>
+        <Button style={style} onPress={onPress} onLongPress={onLongPress} {...props}>
             {!right && icon}
             {label && <Text style={textStyle}>{label}</Text>}
             {right && icon}
