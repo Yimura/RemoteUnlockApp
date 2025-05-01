@@ -7,11 +7,13 @@ import { Color } from '../theme/Color';
 import { Welcome } from './pairDevice/Welcome';
 import { BluetoothPermission } from './pairDevice/BluetoothPermission';
 import { usePairDeviceStore } from '../stores/pairDeviceStore';
+import { EnableBluetooth } from './pairDevice/EnableBluetooth';
+import { DeviceEnabled } from './pairDevice/DeviceEnabled';
 
 
 export function PairDevicePage(): React.JSX.Element {
-    const pages: React.ReactNode[] = [<Welcome />, <BluetoothPermission />, <View />];
-    const [step, setStep] = useState(1);
+    const pages: React.ReactNode[] = [<Welcome />, <BluetoothPermission />, <EnableBluetooth />, <DeviceEnabled />];
+    const [step, setStep] = useState(0);
 
     const { nextEnabled } = usePairDeviceStore();
 
