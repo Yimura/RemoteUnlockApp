@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '../components/core/Card';
-import { Blue, Grey, OffBlue, OffWhite } from '../theme/Color';
+import { Color } from '../theme/Color';
 import { Button } from '../components/core/Button';
 import { SettingItem } from '../components/settings/SettingItem';
 import { Dropdown } from '../components/core/Dropdown';
@@ -36,8 +36,8 @@ export function SettingsPage(): React.JSX.Element {
                     />
                 </View>
                 <View>
-                    <Button style={({ pressed }) => pressed ? { backgroundColor: OffBlue } : { backgroundColor: Blue }}>
-                        <Text style={{ color: OffWhite }}>Save Changes</Text>
+                    <Button style={({ pressed }) => pressed ? { backgroundColor: Color.OffBlue } : { backgroundColor: Color.Blue }}>
+                        <Text style={{ color: Color.OffWhite }}>Save Changes</Text>
                     </Button>
                 </View>
             </Card>
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     },
     description: {
         fontSize: 12,
-        color: Grey,
+        color: Color.Grey,
     },
     settingsItems: {
         gap: 8,

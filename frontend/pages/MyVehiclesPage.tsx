@@ -3,7 +3,7 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { VehicleCard, VehicleCardProps } from '../components/VehicleCard';
 import { Title } from '../components/text/Title';
 import { Button } from '../components/core/Button';
-import { Blue, OffBlue, White } from '../theme/Color';
+import { Color } from '../theme/Color';
 import { useNavigation } from '@react-navigation/native';
 
 const NoDevicesPaired = (): React.JSX.Element => {
@@ -46,12 +46,12 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     pairDeviceBtn: {
-        backgroundColor: Blue,
+        backgroundColor: Color.Blue,
     },
     pairDeviceBtnTxt: {
-        color: White,
+        color: Color.White,
     },
     pairDeviceBtnPressed: {
-        backgroundColor: OffBlue,
+        backgroundColor: Color.OffBlue,
     },
 });

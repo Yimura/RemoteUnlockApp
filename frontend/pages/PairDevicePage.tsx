@@ -1,15 +1,35 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '../components/core/Card';
 import { IconButton } from '../components/core/IconButton';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
-import { Blue, BrokenWhite, Grey, White } from '../theme/Color';
-import { Welcome } from './pair_device/Welcome';
+import { Color } from '../theme/Color';
+import { Welcome } from './pairDevice/Welcome';
+import { BluetoothPermission } from './pairDevice/BluetoothPermission';
+import { usePairDeviceStore } from '../stores/pairDeviceStore';
 
 
 export function PairDevicePage(): React.JSX.Element {
-    const pages: React.ReactNode[] = [<Welcome />];
-    const [step, setStep] = useState(0);
+    const pages: React.ReactNode[] = [<Welcome />, <BluetoothPermission />, <View />];
+    const [step, setStep] = useState(1);
+
+    const { nextEnabled } = usePairDeviceStore();
+
+    const setPreviousStep = useCallback(() => {
+        if (step !== 0) {
+            setStep(step - 1);
+        }
+    }, [step]);
+
+    const setNextStep = useCallback(() => {
+        if (!nextEnabled) {
+            return;
+        }
+
+        if (step < pages.length - 1) {
+            setStep(step + 1);
+        }
+    }, [nextEnabled, step, pages.length]);
 
     return (
         <View style={styles.container}>
@@ -22,11 +42,27 @@ export function PairDevicePage(): React.JSX.Element {
                 </View>
                 <View style={styles.carouselFooter}>
                     <View style={styles.carouselFooterButtons}>
-                        {step !== 0 && <IconButton label="Back" icon={<ChevronLeft size={16} />} />}
-                        {step < pages.length && <IconButton label="Next" icon={<ChevronRight size={16} color={White} />} right={true} />}
+                        {step !== 0 &&
+                            <IconButton
+                                label="Back"
+                                icon={<ChevronLeft size={16} />}
+                                onPress={setPreviousStep}
+                            />
+                        }
+                        {step < pages.length &&
+                            <IconButton
+                                style={styles.nextButton}
+                                textStyle={styles.nextButtonTxt}
+                                label="Next"
+                                icon={<ChevronRight size={16} color={Color.White} />}
+                                right={true}
+                                onPress={setNextStep}
+                                disabled={!nextEnabled}
+                            />
+                        }
                     </View>
                     <View style={styles.carouselPageIndicators}>
-                        {pages.map((_, idx) => <View style={[styles.carouselPageIndicator, idx === step ? { backgroundColor: Blue } : { backgroundColor: BrokenWhite }]} />)}
+                        {pages.map((_, idx) => <View key={idx} style={[styles.carouselPageIndicator, idx === step ? { backgroundColor: Color.Blue } : { backgroundColor: Color.BrokenWhite }]} />)}
                     </View>
                 </View>
             </Card>
@@ -49,7 +85,7 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
     },
     carouselProgress: {
-        color: Grey,
+        color: Color.Grey,
     },
     carouselBody: {
         flexGrow: 1,
@@ -73,5 +109,11 @@ const styles = StyleSheet.create({
         width: 10,
         height: 10,
         borderRadius: 5,
+    },
+    nextButton: {
+        backgroundColor: Color.Black,
+    },
+    nextButtonTxt: {
+        color: Color.White,
     },
 });

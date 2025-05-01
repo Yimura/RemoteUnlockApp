@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import DropdownSelect from 'react-native-input-select';
-import { Black, BrokenWhite, Grey, White } from '../../theme/Color';
+import { Color } from '../../theme/Color';
 import { Check, ChevronDown } from 'lucide-react-native';
 import { DropdownProps } from 'react-native-input-select/lib/typescript/src/types/index.types';
 
@@ -12,7 +12,7 @@ export function Dropdown(props: DropdownProps): React.JSX.Element {
                 {...props}
                 dropdownContainerStyle={styles.dropdownContainer}
                 dropdownStyle={styles.dropdown}
-                dropdownIcon={<ChevronDown color={Grey} />}
+                dropdownIcon={<ChevronDown color={Color.Grey} />}
                 dropdownIconStyle={styles.dropdownIcon}
                 listComponentStyles={{
                     itemSeparatorStyle: {
@@ -20,8 +20,8 @@ export function Dropdown(props: DropdownProps): React.JSX.Element {
                     },
                 }}
                 checkboxControls={{
-                    checkboxStyle: { borderWidth: 0, backgroundColor: Grey, marginRight: 8 },
-                    checkboxComponent: <Check color={White} size={14} />,
+                    checkboxStyle: { borderWidth: 0, backgroundColor: Color.Grey, marginRight: 8 },
+                    checkboxComponent: <Check color={Color.White} size={14} />,
                 }}
                 labelStyle={styles.dropdownLabel}
                 dropdownHelperTextStyle={styles.dropdownHelperText}
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     },
     dropdown: {
         borderWidth: 1,
-        borderColor: BrokenWhite,
+        borderColor: Color.BrokenWhite,
         backgroundColor: 'transparent',
         minHeight: 0, // ???
         paddingHorizontal: 12,
@@ -51,12 +51,12 @@ const styles = StyleSheet.create({
     },
     dropdownLabel: {
         fontSize: 14,
-        color: Black,
+        color: Color.Black,
         marginBottom: 8,
     },
     dropdownHelperText: {
         fontSize: 10,
-        color: Grey,
+        color: Color.Grey,
         marginTop: 8,
     },
 });

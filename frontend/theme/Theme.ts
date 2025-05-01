@@ -1,10 +1,10 @@
-import { Black, BrokenWhite, Grey, OffWhite, White } from './Color';
+import { Color } from './Color';
 
-export const MainBgColor = BrokenWhite;
-export const BgColor = OffWhite;
-export const CardBgColor = White;
+export const MainBgColor = Color.BrokenWhite;
+export const BgColor = Color.OffWhite;
+export const CardBgColor = Color.White;
 
-export const TextColor = Black;
-export const SmallTextColor = Grey;
+export const TextColor = Color.Black;
+export const SmallTextColor = Color.Grey;
 
-export const BorderColor = BrokenWhite;
+export const BorderColor = Color.BrokenWhite;

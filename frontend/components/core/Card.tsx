@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
 import { CardBgColor } from '../../theme/Theme';
-import { BrokenWhite } from '../../theme/Color';
+import { Color } from '../../theme/Color';
 
 export interface CardProps extends ViewProps { }
 
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
         backgroundColor: CardBgColor,
         padding: 16,
 
-        borderColor: BrokenWhite,
+        borderColor: Color.BrokenWhite,
         borderWidth: 1,
         borderRadius: 8,
     },

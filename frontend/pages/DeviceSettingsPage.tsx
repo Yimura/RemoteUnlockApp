@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card } from '../components/core/Card';
-import { Black, Blue, BrokenWhite, OffBlue, OffRed, Red, White } from '../theme/Color';
+import { Color } from '../theme/Color';
 import { IconButton } from '../components/core/IconButton';
 import { Trash2 } from 'lucide-react-native';
 import { Title } from '../components/text/Title';
@@ -51,10 +51,10 @@ export function DeviceSettingsPage(): React.JSX.Element {
             </Card>
             <Card style={styles.deviceRemove}>
                 <View>
-                    <Title style={{ color: Red }}>Danger Zone</Title>
+                    <Title style={{ color: Color.Red }}>Danger Zone</Title>
                     <Description>Remove this device from your paired devices.</Description>
                 </View>
-                <IconButton icon={<Trash2 size={16} color={White} />} label="Remove Device" style={({ pressed }) => pressed ? styles.deviceRemoveBtnPressed : styles.deviceRemoveBtn} textStyle={styles.deviceRemoveBtnTxt} />
+                <IconButton icon={<Trash2 size={16} color={Color.White} />} label="Remove Device" style={({ pressed }) => pressed ? styles.deviceRemoveBtnPressed : styles.deviceRemoveBtn} textStyle={styles.deviceRemoveBtnTxt} />
             </Card>
         </View>
     );
@@ -75,35 +75,35 @@ const styles = StyleSheet.create({
     input: {
         borderWidth: 1,
         borderRadius: 4,
-        borderColor: BrokenWhite,
+        borderColor: Color.BrokenWhite,
 
-        color: Black,
+        color: Color.Black,
 
         margin: 0,
         padding: 8,
     },
     saveTxt: {
-        color: White,
+        color: Color.White,
     },
     saveBtn: {
-        backgroundColor: Blue,
+        backgroundColor: Color.Blue,
     },
     saveBtnPressed: {
-        backgroundColor: OffBlue,
+        backgroundColor: Color.OffBlue,
     },
     deviceRemove: {
-        borderColor: Red,
+        borderColor: Color.Red,
         borderWidth: 1,
 
         gap: 16,
     },
     deviceRemoveBtn: {
-        backgroundColor: Red,
+        backgroundColor: Color.Red,
     },
     deviceRemoveBtnPressed: {
-        backgroundColor: OffRed,
+        backgroundColor: Color.OffRed,
     },
     deviceRemoveBtnTxt: {
-        color: White,
+        color: Color.White,
     },
 });
