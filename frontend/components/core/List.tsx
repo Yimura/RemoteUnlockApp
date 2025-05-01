@@ -17,7 +17,7 @@ const ListItem = ({ ListDecorator, item }: ListItemProps): React.JSX.Element => 
 };
 
 interface ListProps extends ViewProps {
-    children: React.JSX.Element[];
+    children: React.ReactNode[];
     ListDecorator: LucideIcon;
 }
 export function List({ ListDecorator, children, ...props }: ListProps): React.JSX.Element {
