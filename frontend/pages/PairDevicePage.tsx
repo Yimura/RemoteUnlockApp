@@ -4,23 +4,12 @@ import { Card } from '../components/core/Card';
 import { IconButton } from '../components/core/IconButton';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { Color } from '../theme/Color';
-import { Welcome } from './pairDevice/Welcome';
-import { BluetoothPermission } from './pairDevice/BluetoothPermission';
 import { usePairDeviceStore } from '../stores/pairDeviceStore';
-import { EnableBluetooth } from './pairDevice/EnableBluetooth';
-import { DeviceEnabled } from './pairDevice/DeviceEnabled';
-import { ScanDevices } from './pairDevice/ScanDevices';
 
 
 export function PairDevicePage(): React.JSX.Element {
-    const pages: React.ReactNode[] = [
-        <Welcome />, <BluetoothPermission />,
-        <EnableBluetooth />, <DeviceEnabled />,
-        <ScanDevices />,
-    ];
     const [step, setStep] = useState(0);
-
-    const { nextEnabled } = usePairDeviceStore();
+    const { nextEnabled, pages } = usePairDeviceStore();
 
     const setPreviousStep = useCallback(() => {
         if (step !== 0) {
@@ -38,6 +27,8 @@ export function PairDevicePage(): React.JSX.Element {
         }
     }, [nextEnabled, step, pages.length]);
 
+    const { Node, previousButtonLabel, nextButtonLabel } = pages[step];
+
     return (
         <View style={styles.container}>
             <Card style={styles.carouselCard}>
@@ -45,13 +36,13 @@ export function PairDevicePage(): React.JSX.Element {
                     <Text style={styles.carouselStep}>Step {step + 1} / {pages.length}</Text>
                 </View>
                 <View style={styles.carouselBody}>
-                    {pages[step]}
+                    {Node}
                 </View>
                 <View style={styles.carouselFooter}>
                     <View style={styles.carouselFooterButtons}>
                         {step !== 0 &&
                             <IconButton
-                                label="Back"
+                                label={previousButtonLabel || 'Back'}
                                 icon={<ChevronLeft size={16} />}
                                 onPress={setPreviousStep}
                             />
@@ -60,7 +51,7 @@ export function PairDevicePage(): React.JSX.Element {
                             <IconButton
                                 style={styles.nextButton}
                                 textStyle={styles.nextButtonTxt}
-                                label="Next"
+                                label={nextButtonLabel || 'Next'}
                                 icon={<ChevronRight size={16} color={Color.White} />}
                                 right={true}
                                 onPress={setNextStep}
