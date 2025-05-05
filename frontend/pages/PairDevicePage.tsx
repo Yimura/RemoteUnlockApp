@@ -9,10 +9,15 @@ import { BluetoothPermission } from './pairDevice/BluetoothPermission';
 import { usePairDeviceStore } from '../stores/pairDeviceStore';
 import { EnableBluetooth } from './pairDevice/EnableBluetooth';
 import { DeviceEnabled } from './pairDevice/DeviceEnabled';
+import { ScanDevices } from './pairDevice/ScanDevices';
 
 
 export function PairDevicePage(): React.JSX.Element {
-    const pages: React.ReactNode[] = [<Welcome />, <BluetoothPermission />, <EnableBluetooth />, <DeviceEnabled />];
+    const pages: React.ReactNode[] = [
+        <Welcome />, <BluetoothPermission />,
+        <EnableBluetooth />, <DeviceEnabled />,
+        <ScanDevices />,
+    ];
     const [step, setStep] = useState(0);
 
     const { nextEnabled } = usePairDeviceStore();
@@ -37,7 +42,7 @@ export function PairDevicePage(): React.JSX.Element {
         <View style={styles.container}>
             <Card style={styles.carouselCard}>
                 <View style={styles.carouselHeader}>
-                    <Text style={styles.carouselProgress}>Step {step + 1} / {pages.length}</Text>
+                    <Text style={styles.carouselStep}>Step {step + 1} / {pages.length}</Text>
                 </View>
                 <View style={styles.carouselBody}>
                     {pages[step]}
@@ -74,24 +79,20 @@ export function PairDevicePage(): React.JSX.Element {
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100%',
     },
     carouselCard: {
         width: '90%',
-        minHeight: '50%',
-        overflow: 'hidden',
     },
     carouselHeader: {
         alignItems: 'flex-end',
     },
-    carouselProgress: {
+    carouselStep: {
         color: Color.Grey,
     },
     carouselBody: {
-        flexGrow: 1,
-        justifyContent: 'center',
         alignItems: 'center',
     },
     carouselFooter: {
