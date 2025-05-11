@@ -10,6 +10,7 @@ interface PairContainerProps extends ViewProps {
 interface PairContainerIconProps extends ViewProps {
     IconComponent: LucideIcon;
     color?: string;
+    backgroundColor?: string;
     size?: number;
 }
 
@@ -26,9 +27,9 @@ function PairContainer({ children, ...props }: PairContainerProps): React.JSX.El
     );
 }
 
-function PairContainerIcon({ IconComponent, color = Color.Blue, size = 32 }: PairContainerIconProps): React.JSX.Element {
+function PairContainerIcon({ IconComponent, color = Color.Blue, backgroundColor = Color.FadedBlue, size = 32 }: PairContainerIconProps): React.JSX.Element {
     return (
-        <View style={styles.iconWrapper}>
+        <View style={[styles.iconWrapper, { backgroundColor }]}>
             <IconComponent color={color} size={size} />
         </View>
     );
@@ -57,7 +58,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     iconWrapper: {
-        backgroundColor: Color.FadedBlue,
         padding: 16,
         justifyContent: 'center',
         alignItems: 'center',

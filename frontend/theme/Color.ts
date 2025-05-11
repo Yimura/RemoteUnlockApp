@@ -4,6 +4,7 @@ export enum Color {
     FadedBlue = 'rgb(197, 216, 255)',
     WashedBlue = 'rgba(197, 216, 255, 0.2)',
     Green = 'rgb(22, 163, 74)',
+    FadedGreen = 'rgba(139, 243, 177, 0.64)',
     Orange = 'rgb(217, 119, 6)',
     Red = 'rgb(239, 68, 68)',
     OffRed = 'rgb(241, 91, 91)',

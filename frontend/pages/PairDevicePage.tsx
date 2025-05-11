@@ -1,66 +1,59 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '../components/core/Card';
 import { IconButton } from '../components/core/IconButton';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { Color } from '../theme/Color';
 import { usePairDeviceStore } from '../stores/pairDeviceStore';
+import { useNavigation } from '@react-navigation/native';
 
 
 export function PairDevicePage(): React.JSX.Element {
-    const [step, setStep] = useState(0);
-    const { nextEnabled, pages } = usePairDeviceStore();
+    const { nextEnabled, currentPage, gotToPreviousPage, goToNextPage, pages, setLastPageCallback, reset } = usePairDeviceStore();
+    const { Node, previousButtonLabel, nextButtonLabel } = pages[currentPage];
 
-    const setPreviousStep = useCallback(() => {
-        if (step !== 0) {
-            setStep(step - 1);
-        }
-    }, [step]);
+    const navigation = useNavigation();
 
-    const setNextStep = useCallback(() => {
-        if (!nextEnabled) {
-            return;
-        }
-
-        if (step < pages.length - 1) {
-            setStep(step + 1);
-        }
-    }, [nextEnabled, step, pages.length]);
-
-    const { Node, previousButtonLabel, nextButtonLabel } = pages[step];
+    useEffect(() => {
+        setLastPageCallback(() => {
+            reset();
+            navigation.goBack();
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <View style={styles.container}>
             <Card style={styles.carouselCard}>
                 <View style={styles.carouselHeader}>
-                    <Text style={styles.carouselStep}>Step {step + 1} / {pages.length}</Text>
+                    <Text style={styles.carouselStep}>Step {currentPage + 1} / {pages.length}</Text>
                 </View>
                 <View style={styles.carouselBody}>
                     {Node}
                 </View>
                 <View style={styles.carouselFooter}>
                     <View style={styles.carouselFooterButtons}>
-                        {step !== 0 &&
+                        {currentPage !== 0 &&
                             <IconButton
                                 label={previousButtonLabel || 'Back'}
                                 icon={<ChevronLeft size={16} />}
-                                onPress={setPreviousStep}
+                                onPress={gotToPreviousPage}
                             />
                         }
-                        {step < pages.length &&
+                        {currentPage < pages.length &&
                             <IconButton
                                 style={styles.nextButton}
                                 textStyle={styles.nextButtonTxt}
                                 label={nextButtonLabel || 'Next'}
                                 icon={<ChevronRight size={16} color={Color.White} />}
                                 right={true}
-                                onPress={setNextStep}
+                                onPress={goToNextPage}
                                 disabled={!nextEnabled}
                             />
                         }
                     </View>
                     <View style={styles.carouselPageIndicators}>
-                        {pages.map((_, idx) => <View key={idx} style={[styles.carouselPageIndicator, idx === step ? { backgroundColor: Color.Blue } : { backgroundColor: Color.BrokenWhite }]} />)}
+                        {pages.map((_, idx) => <View key={idx} style={[styles.carouselPageIndicator, idx === currentPage ? { backgroundColor: Color.Blue } : { backgroundColor: Color.BrokenWhite }]} />)}
                     </View>
                 </View>
             </Card>
