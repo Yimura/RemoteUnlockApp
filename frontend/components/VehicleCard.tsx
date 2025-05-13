@@ -8,6 +8,7 @@ import { Card } from './core/Card';
 import { useNavigation } from '@react-navigation/native';
 import { Description, Title } from './text';
 import { LoadingButton } from './core/LoadingButton';
+import { RemoteUnlockDevice } from '../stores/deviceStore';
 
 interface IndicatorProps {
     color: ColorValue,
@@ -77,13 +78,7 @@ const LastSeenIndicator = ({ date }: LastSeenIndicatorProps): React.JSX.Element 
 };
 
 export interface VehicleCardProps {
-    vehicle: {
-        model: string;
-        battery: number;
-        connected: boolean;
-        locked: boolean;
-        lastConnected: Date;
-    };
+    vehicle: RemoteUnlockDevice;
     style: ViewStyle;
 }
 export function VehicleCard({ vehicle, style }: VehicleCardProps): React.JSX.Element {
@@ -114,7 +109,7 @@ export function VehicleCard({ vehicle, style }: VehicleCardProps): React.JSX.Ele
                 </View>
             </View>
             <View>
-                <IconButton icon={<Settings size={16} />} label="Device Settings" onPress={() => navigator.navigate('Device Settings')} />
+                <IconButton icon={<Settings size={16} />} label="Device Settings" onPress={() => navigator.navigate('Device Settings', { mac: vehicle.mac })} />
             </View>
         </Card>
     );

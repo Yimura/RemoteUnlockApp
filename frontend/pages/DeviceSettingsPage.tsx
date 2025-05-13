@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card } from '../components/core/Card';
 import { Color } from '../theme/Color';
@@ -8,10 +8,40 @@ import { Description, Title } from '../components/text';
 import { Button } from '../components/core/Button';
 import { SettingItem } from '../components/settings/SettingItem';
 import { Slider } from '../components/core/Slider';
+import { useDeviceStore } from '../stores/deviceStore';
+import { useNavigation } from '@react-navigation/native';
 
-export function DeviceSettingsPage(): React.JSX.Element {
-    const [deviceName, setDeviceName] = useState('BMW E36');
+interface DeviceSettingsPageRoute {
+    route: {
+        params: {
+            mac: string
+        }
+    }
+}
+
+export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JSX.Element {
+    const navigation = useNavigation();
+
+    const { get, update, remove } = useDeviceStore();
+    const [device, updateDevice] = useState(get(route.params.mac));
+
     const [proximityThreshold, setProximityThreshold] = useState(5);
+
+    const updateDeviceName = useCallback((newName: string) => {
+        if (!device) {
+            return;
+        }
+
+        updateDevice({ ...device, ...{ model: newName } });
+    }, [device]);
+
+    const deleteDevice = () => {
+        if (device) {
+            remove(device.mac);
+        }
+
+        navigation.goBack();
+    };
 
     return (
         <View style={styles.container}>
@@ -27,7 +57,7 @@ export function DeviceSettingsPage(): React.JSX.Element {
                 </View>
                 <View>
                     <Text>Device Name</Text>
-                    <TextInput style={styles.input} onChangeText={setDeviceName} value={deviceName} />
+                    <TextInput style={styles.input} onChangeText={updateDeviceName} value={device?.model} />
                 </View>
                 <View>
                     <SettingItem label="Automatic Lock/Unlock" description="Automatically lock/unlock based on proximity." value={true} />
@@ -44,7 +74,7 @@ export function DeviceSettingsPage(): React.JSX.Element {
                     />
                     <Description>The vehicle will unlock when you are closer than this distance and lock when you move further away.</Description>
                 </View>
-                <Button style={({ pressed }) => pressed ? styles.saveBtnPressed : styles.saveBtn}>
+                <Button style={({ pressed }) => pressed ? styles.saveBtnPressed : styles.saveBtn} onPress={() => device && update(device)}>
                     <Text style={styles.saveTxt}>Save Changes</Text>
                 </Button>
             </Card>
@@ -53,7 +83,13 @@ export function DeviceSettingsPage(): React.JSX.Element {
                     <Title style={{ color: Color.Red }}>Danger Zone</Title>
                     <Description>Remove this device from your paired devices.</Description>
                 </View>
-                <IconButton icon={<Trash2 size={16} color={Color.White} />} label="Remove Device" style={({ pressed }) => pressed ? styles.deviceRemoveBtnPressed : styles.deviceRemoveBtn} textStyle={styles.deviceRemoveBtnTxt} />
+                <IconButton
+                    icon={<Trash2 size={16} color={Color.White} />}
+                    label="Remove Device"
+                    style={({ pressed }) => pressed ? styles.deviceRemoveBtnPressed : styles.deviceRemoveBtn}
+                    textStyle={styles.deviceRemoveBtnTxt}
+                    onPress={deleteDevice}
+                />
             </Card>
         </View>
     );

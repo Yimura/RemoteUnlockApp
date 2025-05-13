@@ -1,10 +1,11 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { VehicleCard, VehicleCardProps } from '../components/VehicleCard';
+import { VehicleCard } from '../components/VehicleCard';
 import { Title } from '../components/text';
 import { Button } from '../components/core/Button';
 import { Color } from '../theme/Color';
 import { useNavigation } from '@react-navigation/native';
+import { useDeviceStore } from '../stores/deviceStore';
 
 const NoDevicesPaired = (): React.JSX.Element => {
     const navigation = useNavigation();
@@ -21,15 +22,12 @@ const NoDevicesPaired = (): React.JSX.Element => {
 };
 
 export function MyVehiclesPage(): React.JSX.Element {
-    const vehicles: VehicleCardProps['vehicle'][] = [
-        // { model: 'BMW E36', battery: 14.4, connected: true, locked: true, lastConnected: new Date(Date.now() - 6e5) },
-        // { model: 'Defender 90', battery: 10.3, connected: false, locked: false, lastConnected: new Date(Date.now() - 1e6) },
-    ];
+    const { devices } = useDeviceStore();
 
     return (
         <View>
-            {vehicles.length > 0 && <FlatList data={vehicles} renderItem={({ item }) => <VehicleCard vehicle={item} style={styles.item} />} keyExtractor={item => item.model} />}
-            {vehicles.length === 0 && <NoDevicesPaired />}
+            {devices.length > 0 && <FlatList data={devices} renderItem={({ item }) => <VehicleCard vehicle={item} style={styles.item} />} keyExtractor={item => item.model} />}
+            {devices.length === 0 && <NoDevicesPaired />}
         </View>
     );
 }
