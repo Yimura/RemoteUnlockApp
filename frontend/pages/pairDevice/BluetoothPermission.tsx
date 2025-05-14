@@ -8,10 +8,12 @@ import { Description } from '../../components/text';
 import { Button } from '../../components/core/Button';
 import { usePairDeviceStore } from '../../stores/pairDeviceStore';
 import { Color } from '../../theme/Color';
+import { BLEService } from '../../services/BLEService';
+import { useNavigation } from '@react-navigation/native';
 
 export function BluetoothPermission(): React.JSX.Element {
-
-    const { setNextEnabled } = usePairDeviceStore();
+    const navigation = useNavigation();
+    const { setNextEnabled, reset } = usePairDeviceStore();
 
     useEffect(() => {
         setNextEnabled(false);
@@ -23,6 +25,12 @@ export function BluetoothPermission(): React.JSX.Element {
         // Disable the eslist-next-line so that this effect can be run onmount, which doesn't require dependencies.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const userConsent = async () => {
+        const result = await BLEService.requestPermissions();
+
+        setNextEnabled(result);
+    };
 
     return (
         <PairContainer>
@@ -39,10 +47,10 @@ export function BluetoothPermission(): React.JSX.Element {
                 </List>
                 <Description>We only use this information to help you connect to your devices. We don't store or share this data.</Description>
                 <View style={styles.permissionButtons}>
-                    <Button style={styles.permissionButton}>
+                    <Button style={styles.permissionButton} onPress={() => (navigation.goBack(), reset())}>
                         <Text>Deny</Text>
                     </Button>
-                    <Button style={({ pressed }) => [styles.permissionButton, pressed ? styles.allowButtonPressed : styles.allowButton]} onPress={() => setNextEnabled(true)}>
+                    <Button style={({ pressed }) => [styles.permissionButton, pressed ? styles.allowButtonPressed : styles.allowButton]} onPress={userConsent}>
                         <Text style={styles.allowText}>Allow</Text>
                     </Button>
                 </View>
