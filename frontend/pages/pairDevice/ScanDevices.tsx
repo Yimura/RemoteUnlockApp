@@ -30,7 +30,7 @@ export function ScanDevices(): React.JSX.Element {
     const [devices, setDevices] = useState(new Map<Device['id'], Device>());
     useEffect(() => {
         BLEService.stopDeviceScan().then(() => {
-            BLEService.startDeviceScan(['7ccf30e3-a9af-45b2-8d1d-f58e4d30ff95', '3b54f484-0c81-4442-849f-0197895f2e53'], { callbackType: ScanCallbackType.AllMatches, scanMode: ScanMode.LowLatency }, (err, device) => {
+            BLEService.startDeviceScan(['7ccf30e3-a9af-45b2-8d1d-f58e4d30ff95'], { callbackType: ScanCallbackType.AllMatches, scanMode: ScanMode.LowLatency }, async (err, device) => {
                 if (err || !device) {
                     console.error(err);
                     return;
