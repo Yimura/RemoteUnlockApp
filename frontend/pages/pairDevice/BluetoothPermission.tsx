@@ -1,5 +1,5 @@
 import { Check, Search } from 'lucide-react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PairContainer } from './components/PairContainer';
 import { Card } from '../../components/core/Card';
 import { StyleSheet, Text, View } from 'react-native';
@@ -14,9 +14,14 @@ import { useNavigation } from '@react-navigation/native';
 export function BluetoothPermission(): React.JSX.Element {
     const navigation = useNavigation();
     const { setNextEnabled, reset } = usePairDeviceStore();
+    const [hasPermissions, setPermissions] = useState(false);
+
+    BLEService.hasPermissions().then(hasPermission => {
+        setPermissions(hasPermission);
+    });
 
     useEffect(() => {
-        setNextEnabled(false);
+        setNextEnabled(hasPermissions);
 
         return () => {
             setNextEnabled(true);
@@ -24,7 +29,7 @@ export function BluetoothPermission(): React.JSX.Element {
 
         // Disable the eslist-next-line so that this effect can be run onmount, which doesn't require dependencies.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [hasPermissions]);
 
     const userConsent = async () => {
         const result = await BLEService.requestPermissions();

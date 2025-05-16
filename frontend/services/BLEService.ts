@@ -21,6 +21,20 @@ class BLEServiceInstance extends BleManager {
         return true;
     }
 
+    async hasPermissions(): Promise<boolean> {
+        if (Platform.OS !== 'android') {
+            return true;
+        }
+
+        if (await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) &&
+            await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN) &&
+            await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT)) {
+            return true;
+        }
+
+        return false;
+    }
+
     async requestPermissions(): Promise<boolean> {
         if (Platform.OS !== 'android') {
             return true;

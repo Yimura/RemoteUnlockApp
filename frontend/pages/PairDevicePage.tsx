@@ -16,9 +16,12 @@ export function PairDevicePage(): React.JSX.Element {
 
     useEffect(() => {
         setLastPageCallback(() => {
-            reset();
             navigation.goBack();
         });
+
+        return () => {
+            reset();
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
