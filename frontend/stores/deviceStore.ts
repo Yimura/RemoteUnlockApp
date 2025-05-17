@@ -1,12 +1,39 @@
+import { Device, DeviceId } from 'react-native-ble-plx';
 import { create } from 'zustand';
 
-export interface RemoteUnlockDevice {
-    mac: string;
-    model: string;
-    battery: number;
-    connected: boolean;
-    locked: boolean;
-    lastConnected: Date;
+export enum LockState {
+    Unknown = 'Unknown',
+    Locked = 'Locked',
+    Unlocked = 'Unlocked',
+}
+
+export class RemoteUnlockDevice {
+    ble: Device;
+    battery?: number;
+    connected: boolean = false;
+    locked: LockState = LockState.Unknown;
+    lastConnected?: Date;
+
+    constructor(device: Device) {
+        this.ble = device;
+    }
+
+    async connect(): Promise<boolean> {
+        try {
+            await this.ble.connect();
+        } catch (error) {
+            this.connected = false;
+            return false;
+        }
+        this.lastConnected = new Date();
+        this.connected = true;
+        return true;
+    }
+
+    async disconnect(): Promise<void> {
+        await this.ble.cancelConnection();
+        this.connected = false;
+    }
 }
 
 interface DeviceStoreState {
@@ -15,8 +42,8 @@ interface DeviceStoreState {
 
 interface DeviceStoreActions {
     add: (device: RemoteUnlockDevice) => void;
-    get: (mac: string) => RemoteUnlockDevice | undefined;
-    remove: (mac: string) => void;
+    get: (id: DeviceId) => RemoteUnlockDevice | undefined;
+    remove: (id: DeviceId) => void;
     update: (device: RemoteUnlockDevice) => void;
 }
 
@@ -24,7 +51,7 @@ export const useDeviceStore = create<DeviceStoreState & DeviceStoreActions>()((s
     devices: [],
 
     add: (device) => set(({ devices }) => ({ devices: [...devices, device] })),
-    get: (mac) => get().devices.find(device => device.mac === mac),
-    remove: (mac) => set(({ devices }) => ({ devices: devices.filter(device => device.mac !== mac) })),
-    update: (device) => set(({ devices }) => ({ devices: devices.map(_device => _device.mac === device.mac && device || _device) })),
+    get: (id) => get().devices.find(device => device.ble.id === id),
+    remove: (id) => set(({ devices }) => ({ devices: devices.filter(device => device.ble.id !== id) })),
+    update: (device) => set(({ devices }) => ({ devices: devices.map(_device => _device.ble.id === device.ble.id && device || _device) })),
 }));

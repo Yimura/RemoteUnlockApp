@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 interface DeviceSettingsPageRoute {
     route: {
         params: {
-            mac: string
+            id: string
         }
     }
 }
@@ -23,21 +23,21 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
     const navigation = useNavigation();
 
     const { get, update, remove } = useDeviceStore();
-    const [device, updateDevice] = useState(get(route.params.mac));
+    const device = get(route.params.id);
 
+    const [deviceName, setDeviceName] = useState(device?.ble.localName || 'Unknown');
     const [proximityThreshold, setProximityThreshold] = useState(5);
 
-    const updateDeviceName = useCallback((newName: string) => {
-        if (!device) {
-            return;
+    const updateDevice = () => {
+        if (device) {
         }
-
-        updateDevice({ ...device, ...{ model: newName } });
-    }, [device]);
+    };
 
     const deleteDevice = () => {
         if (device) {
-            remove(device.mac);
+            remove(device.ble.id);
+
+            device.ble.cancelConnection();
         }
 
         navigation.goBack();
@@ -52,12 +52,12 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
                         <Description>Configure your device settings</Description>
                     </View>
                     <Button>
-                        <Text>Disconnect</Text>
+                        <Text>{device?.connected ? 'Disconnect' : 'Connect'}</Text>
                     </Button>
                 </View>
                 <View>
                     <Text>Device Name</Text>
-                    <TextInput style={styles.input} onChangeText={updateDeviceName} value={device?.model} />
+                    <TextInput style={styles.input} onChangeText={setDeviceName} value={deviceName} />
                 </View>
                 <View>
                     <SettingItem label="Automatic Lock/Unlock" description="Automatically lock/unlock based on proximity." value={true} />
@@ -74,7 +74,7 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
                     />
                     <Description>The vehicle will unlock when you are closer than this distance and lock when you move further away.</Description>
                 </View>
-                <Button style={({ pressed }) => pressed ? styles.saveBtnPressed : styles.saveBtn} onPress={() => device && update(device)}>
+                <Button style={({ pressed }) => pressed ? styles.saveBtnPressed : styles.saveBtn} onPress={updateDevice}>
                     <Text style={styles.saveTxt}>Save Changes</Text>
                 </Button>
             </Card>

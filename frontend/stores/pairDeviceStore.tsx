@@ -7,6 +7,7 @@ import { DeviceEnabled } from '../pages/pairDevice/DeviceEnabled';
 import { ScanDevices } from '../pages/pairDevice/ScanDevices';
 import { ConnectingTo } from '../pages/pairDevice/ConnectingTo';
 import { ConnectionComplete } from '../pages/pairDevice/ConnectionComplete';
+import { Device } from 'react-native-ble-plx';
 
 interface PairDevicePageDetails {
     previousButtonLabel?: string;
@@ -19,6 +20,7 @@ interface PairDeviceState {
     currentPage: number;
     pages: PairDevicePageDetails[];
     lastPageCallback?: () => void;
+    selectedDevice: Device | null;
 }
 
 interface PairDeviceActions {
@@ -29,10 +31,13 @@ interface PairDeviceActions {
     setNextEnabled: (value: boolean) => void;
     setLastPageCallback: (callback: () => void) => void;
 
+    selectDevice: (device: Device) => void;
+
     reset: () => void;
 }
 
 const defaults: PairDeviceState = {
+    selectedDevice: null,
     nextEnabled: true,
     currentPage: 0,
     pages: [
@@ -90,6 +95,8 @@ export const usePairDeviceStore = create<PairDeviceState & PairDeviceActions>()(
     setCurrentPage: (page) => set(() => ({ currentPage: page })),
 
     setLastPageCallback: (callback) => set(() => ({ lastPageCallback: callback })),
+
+    selectDevice: (device) => set(() => ({ selectedDevice: device })),
 
     reset: () => set(() => defaults),
 }));

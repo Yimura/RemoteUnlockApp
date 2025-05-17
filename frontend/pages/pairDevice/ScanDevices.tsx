@@ -5,12 +5,55 @@ import { ProgressBar } from '../../components/core/ProgressBar';
 import { usePairDeviceStore } from '../../stores/pairDeviceStore';
 import { ScannedDevice } from './components/ScannedDevice';
 import { BLEService } from '../../services/BLEService';
-import { Device, ScanCallbackType, ScanMode } from 'react-native-ble-plx';
+import { Device } from 'react-native-ble-plx';
+
+const SCAN_PERIOD = 3e4;
+const SCAN_PROGRESS_DEFINITION = 50;
 
 export function ScanDevices(): React.JSX.Element {
+    const { selectedDevice, selectDevice } = usePairDeviceStore();
+
     const [scanning, setScanning] = useState(true);
     const [progress, setProgress] = useState(0.0);
-    const [selected, setSelected] = useState<number | null>(null);
+    const [devices, setDevices] = useState(new Map<Device['id'], Device>());
+
+    useEffect(() => {
+        if (scanning) {
+            BLEService.stopDeviceScan().then(() => {
+                BLEService.startDeviceScan(['7ccf30e3-a9af-45b2-8d1d-f58e4d30ff95'], null, async (err, device) => {
+                    if (err || !device) {
+                        console.error(err);
+                        return;
+                    }
+
+                    setDevices((prevDevices) => new Map(prevDevices.set(device.id, device)));
+                });
+            });
+
+            BLEService.connectedDevices(['7ccf30e3-a9af-45b2-8d1d-f58e4d30ff95'])
+                .then(connectedDevices =>
+                    connectedDevices.map(device =>
+                        setDevices(prevDevices => new Map(prevDevices.set(device.id, device)))
+                    )
+                );
+
+            const interval = setInterval(() => {
+                setProgress(prev => {
+                    if (prev >= 1.0) {
+                        clearInterval(interval);
+                        setScanning(false);
+
+                        return 1.0;
+                    }
+                    return prev + SCAN_PROGRESS_DEFINITION / SCAN_PERIOD;
+                });
+            }, SCAN_PROGRESS_DEFINITION);
+
+            return () => {
+                BLEService.stopDeviceScan();
+            };
+        }
+    }, [scanning]);
 
     const { setNextEnabled } = usePairDeviceStore();
     useEffect(() => {
@@ -22,28 +65,10 @@ export function ScanDevices(): React.JSX.Element {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const selectDevice = (idx: number) => {
-        setSelected(idx);
+    const setSelectDevice = (device: Device) => {
+        selectDevice(device);
         setNextEnabled(true);
     };
-
-    const [devices, setDevices] = useState(new Map<Device['id'], Device>());
-    useEffect(() => {
-        BLEService.stopDeviceScan().then(() => {
-            BLEService.startDeviceScan(['7ccf30e3-a9af-45b2-8d1d-f58e4d30ff95'], { callbackType: ScanCallbackType.AllMatches, scanMode: ScanMode.LowLatency }, async (err, device) => {
-                if (err || !device) {
-                    console.error(err);
-                    return;
-                }
-
-                setDevices((prevDevices) => new Map(prevDevices.set(device.id, device)));
-            });
-        });
-
-        return () => {
-            BLEService.stopDeviceScan();
-        };
-    }, []);
 
     return (
         <PairContainer>
@@ -53,15 +78,15 @@ export function ScanDevices(): React.JSX.Element {
             <View style={styles.scannedDevicesContainer}>
                 <View>
                     <Text>{scanning ? 'Scanning...' : 'Available Devices'}</Text>
-                    <ProgressBar progress={0.3} />
+                    {scanning && <ProgressBar progress={progress} />}
                 </View>
 
                 <FlatList data={[...devices.values()]} keyExtractor={(item) => item.id} renderItem={({ item, index }) =>
                     <ScannedDevice
                         key={index}
-                        deviceName={item.name || 'Unknown'}
-                        selected={index === selected}
-                        onPress={() => selectDevice(index)}
+                        deviceName={item.localName || 'Unknown'}
+                        selected={item.id === selectedDevice?.id}
+                        onPress={() => setSelectDevice(item)}
                     />
                 } />
             </View>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { VehicleCard } from '../components/VehicleCard';
+import { VehicleCard } from '../components/device/VehicleCard';
 import { Title } from '../components/text';
 import { Button } from '../components/core/Button';
 import { Color } from '../theme/Color';
@@ -26,7 +26,7 @@ export function MyVehiclesPage(): React.JSX.Element {
 
     return (
         <View>
-            {devices.length > 0 && <FlatList data={devices} renderItem={({ item }) => <VehicleCard vehicle={item} style={styles.item} />} keyExtractor={item => item.model} />}
+            {devices.length > 0 && <FlatList data={devices} renderItem={({ item }) => <VehicleCard device={item} style={styles.item} />} keyExtractor={item => item.ble.id} />}
             {devices.length === 0 && <NoDevicesPaired />}
         </View>
     );
