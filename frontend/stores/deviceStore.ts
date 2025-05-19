@@ -1,40 +1,6 @@
-import { Device, DeviceId } from 'react-native-ble-plx';
+import { DeviceId } from 'react-native-ble-plx';
 import { create } from 'zustand';
-
-export enum LockState {
-    Unknown = 'Unknown',
-    Locked = 'Locked',
-    Unlocked = 'Unlocked',
-}
-
-export class RemoteUnlockDevice {
-    ble: Device;
-    battery?: number;
-    connected: boolean = false;
-    locked: LockState = LockState.Unknown;
-    lastConnected?: Date;
-
-    constructor(device: Device) {
-        this.ble = device;
-    }
-
-    async connect(): Promise<boolean> {
-        try {
-            await this.ble.connect();
-        } catch (error) {
-            this.connected = false;
-            return false;
-        }
-        this.lastConnected = new Date();
-        this.connected = true;
-        return true;
-    }
-
-    async disconnect(): Promise<void> {
-        await this.ble.cancelConnection();
-        this.connected = false;
-    }
-}
+import { RemoteUnlockDevice } from '../ble/RemoteUnlockDevice';
 
 interface DeviceStoreState {
     devices: RemoteUnlockDevice[];

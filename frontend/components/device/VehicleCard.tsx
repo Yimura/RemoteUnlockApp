@@ -5,9 +5,10 @@ import { Lock, Settings, Unlock } from 'lucide-react-native';
 import { Card } from '../core/Card';
 import { Description, Title } from '../text';
 import { LoadingButton } from '../core/LoadingButton';
-import { RemoteUnlockDevice, useDeviceStore } from '../../stores/deviceStore';
+import { useDeviceStore } from '../../stores/deviceStore';
 import { BatteryIndicator, ConnectionIndicator, LastSeenIndicator, LockIndicator } from './indicators';
 import { useRootNavigation } from '../../hooks/Navigation';
+import { LockState, RemoteUnlockDevice } from '../../ble/RemoteUnlockDevice';
 
 export interface VehicleCardProps {
     device: RemoteUnlockDevice;
@@ -30,6 +31,26 @@ export function VehicleCard({ device, style }: VehicleCardProps): React.JSX.Elem
         setIsLoading(false);
     };
 
+    const lock = async () => {
+        try {
+            await device.doors.setState(LockState.Locked);
+            device.locked = LockState.Locked;
+            update(device);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const unlock = async () => {
+        try {
+            await device.doors.setState(LockState.Unlocked);
+            device.locked = LockState.Unlocked;
+            update(device);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     return (
         <Card style={style}>
             <View style={styles.header}>
@@ -49,8 +70,8 @@ export function VehicleCard({ device, style }: VehicleCardProps): React.JSX.Elem
                     <LastSeenIndicator date={device.lastConnected} />
                 </View>
                 <View style={styles.lockButtons}>
-                    <IconButton icon={<Unlock size={16} />} />
-                    <IconButton icon={<Lock size={16} />} />
+                    <IconButton onPress={unlock} icon={<Unlock size={16} />} />
+                    <IconButton onPress={lock} icon={<Lock size={16} />} />
                 </View>
             </View>
             <View>

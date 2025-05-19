@@ -28,8 +28,13 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
     const [deviceName, setDeviceName] = useState(device?.ble.localName || 'Unknown');
     const [proximityThreshold, setProximityThreshold] = useState(5);
 
-    const updateDevice = () => {
+    const updateDevice = async () => {
         if (device) {
+            try {
+                await device.settings.setName(deviceName);
+            } catch (error) {
+                console.error(error);
+            }
         }
     };
 

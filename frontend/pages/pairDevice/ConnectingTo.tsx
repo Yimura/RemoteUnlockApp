@@ -3,7 +3,8 @@ import { PairContainer } from './components/PairContainer';
 import { RadioReceiver } from 'lucide-react-native';
 import { LoadingButton } from '../../components/core/LoadingButton';
 import { usePairDeviceStore } from '../../stores/pairDeviceStore';
-import { RemoteUnlockDevice, useDeviceStore } from '../../stores/deviceStore';
+import { useDeviceStore } from '../../stores/deviceStore';
+import { RemoteUnlockDevice } from '../../ble/RemoteUnlockDevice';
 
 export function ConnectingTo(): React.JSX.Element {
     const { setNextEnabled, selectedDevice } = usePairDeviceStore();
