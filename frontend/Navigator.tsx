@@ -3,6 +3,7 @@ import { Car, Settings } from 'lucide-react-native';
 import React from 'react';
 import { MyVehiclesPage } from './pages/MyVehiclesPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { BottomTabParamList } from './Routes';
 
 interface TabBarIconProps {
     focused: boolean;
@@ -11,7 +12,7 @@ interface TabBarIconProps {
 }
 
 export const Navigator = (): React.JSX.Element => {
-    const Tab = createBottomTabNavigator();
+    const Tab = createBottomTabNavigator<BottomTabParamList>();
 
     const carIcon = (props: TabBarIconProps) => <Car {...props} />;
     const settingsIcon = (props: TabBarIconProps) => <Settings {...props} />;

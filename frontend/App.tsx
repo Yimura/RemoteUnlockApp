@@ -6,15 +6,14 @@ import {
     // useColorScheme,
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Navigator } from './Navigator';
 import { MainBgColor } from './theme/Theme';
-import { DeviceSettingsPage } from './pages/DeviceSettingsPage';
-import { PairDevicePage } from './pages/PairDevicePage';
+import { DeviceSettingsPage, Navigator, PairDevicePage, RootStackParamList } from './Routes';
+
 
 function App(): React.JSX.Element {
     // const _isDarkMode = useColorScheme() === 'dark';
 
-    const Stack = createNativeStackNavigator();
+    const Stack = createNativeStackNavigator<RootStackParamList>();
 
     return (
         <SafeAreaProvider style={styles.body}>

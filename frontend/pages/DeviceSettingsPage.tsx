@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card } from '../components/core/Card';
 import { Color } from '../theme/Color';
@@ -22,7 +22,7 @@ interface DeviceSettingsPageRoute {
 export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JSX.Element {
     const navigation = useNavigation();
 
-    const { get, update, remove } = useDeviceStore();
+    const { get, remove } = useDeviceStore();
     const device = get(route.params.id);
 
     const [deviceName, setDeviceName] = useState(device?.ble.localName || 'Unknown');

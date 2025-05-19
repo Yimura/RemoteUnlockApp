@@ -3,18 +3,18 @@ import { StyleSheet, View, ViewStyle } from 'react-native';
 import { IconButton } from '../core/IconButton';
 import { Lock, Settings, Unlock } from 'lucide-react-native';
 import { Card } from '../core/Card';
-import { useNavigation } from '@react-navigation/native';
 import { Description, Title } from '../text';
 import { LoadingButton } from '../core/LoadingButton';
 import { RemoteUnlockDevice, useDeviceStore } from '../../stores/deviceStore';
 import { BatteryIndicator, ConnectionIndicator, LastSeenIndicator, LockIndicator } from './indicators';
+import { useRootNavigation } from '../../hooks/Navigation';
 
 export interface VehicleCardProps {
     device: RemoteUnlockDevice;
     style: ViewStyle;
 }
 export function VehicleCard({ device, style }: VehicleCardProps): React.JSX.Element {
-    const navigator = useNavigation();
+    const navigation = useRootNavigation();
     const [isLoading, setIsLoading] = useState(false);
     const { update } = useDeviceStore();
 
@@ -54,7 +54,7 @@ export function VehicleCard({ device, style }: VehicleCardProps): React.JSX.Elem
                 </View>
             </View>
             <View>
-                <IconButton icon={<Settings size={16} />} label="Device Settings" onPress={() => navigator.navigate('Device Settings', { id: device.ble.id })} />
+                <IconButton icon={<Settings size={16} />} label="Device Settings" onPress={() => navigation.navigate('Device Settings', { id: device.ble.id })} />
             </View>
         </Card>
     );

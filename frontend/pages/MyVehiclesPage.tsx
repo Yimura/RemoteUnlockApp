@@ -4,11 +4,11 @@ import { VehicleCard } from '../components/device/VehicleCard';
 import { Title } from '../components/text';
 import { Button } from '../components/core/Button';
 import { Color } from '../theme/Color';
-import { useNavigation } from '@react-navigation/native';
 import { useDeviceStore } from '../stores/deviceStore';
+import { useRootNavigation } from '../hooks/Navigation';
 
 const NoDevicesPaired = (): React.JSX.Element => {
-    const navigation = useNavigation();
+    const navigation = useRootNavigation();
 
     return (
         <View style={styles.noDevicesPaired}>

@@ -13,7 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 
 export function BluetoothPermission(): React.JSX.Element {
     const navigation = useNavigation();
-    const { setNextEnabled, reset } = usePairDeviceStore();
+    const { setNextEnabled } = usePairDeviceStore();
     const [hasPermissions, setPermissions] = useState(false);
 
     BLEService.hasPermissions().then(hasPermission => {
@@ -52,7 +52,7 @@ export function BluetoothPermission(): React.JSX.Element {
                 </List>
                 <Description>We only use this information to help you connect to your devices. We don't store or share this data.</Description>
                 <View style={styles.permissionButtons}>
-                    <Button style={styles.permissionButton} onPress={() => (navigation.goBack(), reset())}>
+                    <Button style={styles.permissionButton} onPress={navigation.goBack}>
                         <Text>Deny</Text>
                     </Button>
                     <Button style={({ pressed }) => [styles.permissionButton, pressed ? styles.allowButtonPressed : styles.allowButton]} onPress={userConsent}>
