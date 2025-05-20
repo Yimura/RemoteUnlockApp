@@ -1,6 +1,7 @@
 import { Device } from 'react-native-ble-plx';
 import { SettingService } from './SettingsService';
 import { DoorService } from './DoorService';
+import { StatusService } from './StatusService';
 
 export enum LockState {
     Unknown = 'Unknown',
@@ -16,12 +17,14 @@ export class RemoteUnlockDevice {
     lastConnected?: Date;
 
     doors: DoorService;
+    status: StatusService;
     settings: SettingService;
 
     constructor(device: Device) {
         this.ble = device;
 
         this.doors = new DoorService(device);
+        this.status = new StatusService(device);
         this.settings = new SettingService(device);
     }
 
@@ -46,5 +49,6 @@ export class RemoteUnlockDevice {
 
     async updateStates(): Promise<void> {
         this.locked = await this.doors.getState();
+        this.battery = await this.status.getVoltage();
     }
 }
