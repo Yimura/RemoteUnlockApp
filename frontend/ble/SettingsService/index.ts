@@ -7,9 +7,13 @@ export class SettingService {
 
     }
 
-    async setName(newName: String): Promise<void> {
+    async setName(newName: String): Promise<boolean> {
         const SET_NAME_UUID: UUID = '0ab8e741-ede3-4a49-9d80-55f96354bc7a';
+        if (newName.length > 20) {
+            return false;
+        }
 
         await this.device.writeCharacteristicWithResponseForService(SettingServiceUUID, SET_NAME_UUID, Buffer.from(newName).toString('base64'));
+        return true;
     }
 }
