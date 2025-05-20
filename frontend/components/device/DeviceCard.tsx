@@ -10,11 +10,11 @@ import { BatteryIndicator, ConnectionIndicator, LastSeenIndicator, LockIndicator
 import { useRootNavigation } from '../../hooks/Navigation';
 import { LockState, RemoteUnlockDevice } from '../../ble/RemoteUnlockDevice';
 
-export interface VehicleCardProps {
+export interface DeviceCardProps {
     device: RemoteUnlockDevice;
     style: ViewStyle;
 }
-export function VehicleCard({ device, style }: VehicleCardProps): React.JSX.Element {
+export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Element {
     const navigation = useRootNavigation();
     const [isLoading, setIsLoading] = useState(false);
     const { update } = useDeviceStore();
