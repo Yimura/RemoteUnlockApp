@@ -16,6 +16,11 @@ export class DoorService {
             return LockState.Unknown;
         }
         const buff = Buffer.from(characteristic.value, 'base64');
+        if (buff.length !== 1) {
+            // we do not accept heresy
+            return LockState.Unknown;
+        }
+
         switch (buff.at(0)) {
             case 0x0:
                 return LockState.Locked;
