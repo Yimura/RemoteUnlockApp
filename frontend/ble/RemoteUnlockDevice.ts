@@ -32,13 +32,13 @@ export class RemoteUnlockDevice {
         try {
             await this.ble.connect();
             await this.ble.discoverAllServicesAndCharacteristics();
+            this.connected = true;
+            this.lastConnected = new Date();
             await this.updateStates();
         } catch (error) {
             this.connected = false;
             return false;
         }
-        this.lastConnected = new Date();
-        this.connected = true;
         return true;
     }
 
@@ -48,6 +48,11 @@ export class RemoteUnlockDevice {
     }
 
     async updateStates(): Promise<void> {
+        if (!this.connected) {
+            this.connect();
+            return;
+        }
+
         this.locked = await this.doors.getState();
         this.battery = await this.status.getVoltage();
     }
