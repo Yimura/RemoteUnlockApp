@@ -20,8 +20,8 @@ export function Dropdown(props: DropdownProps): React.JSX.Element {
                     },
                 }}
                 checkboxControls={{
-                    checkboxStyle: { borderWidth: 0, backgroundColor: Color.Grey, marginRight: 8 },
-                    checkboxComponent: <Check color={Color.White} size={14} />,
+                    checkboxStyle: { borderWidth: 0, backgroundColor: 'transparent', marginRight: 8 },
+                    checkboxComponent: <Check color={Color.Black} size={14} />,
                 }}
                 labelStyle={styles.dropdownLabel}
                 dropdownHelperTextStyle={styles.dropdownHelperText}
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
     },
     dropdownIcon: {
-        top: 6, // yay magic alignment values
+        top: '36%', // yay magic alignment values
         right: 10, // yay magic alignment values
     },
     dropdownLabel: {
