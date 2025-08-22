@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, ViewProps } from 'react-native';
-import { Color } from '../../../theme/Color';
-import { Title } from '../../../components/text';
 import { LucideIcon } from 'lucide-react-native';
+import { Color } from '@/theme/Color';
+import { Title } from '@/components/text';
 
 interface PairContainerProps extends ViewProps {
 }

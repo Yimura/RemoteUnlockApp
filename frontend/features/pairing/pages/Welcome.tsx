@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Bluetooth } from 'lucide-react-native';
-import { PairContainer } from './components/PairContainer';
-import { usePairDeviceStore } from '../../stores/pairDeviceStore';
+import { PairContainer } from '../components/PairContainer';
+import { PaginatorContext } from '../components/paginator';
 
 export function Welcome(): React.JSX.Element {
-    const { setNextEnabled } = usePairDeviceStore();
+    const { setNextEnabled } = useContext(PaginatorContext);
 
     useEffect(() => {
         setNextEnabled(true);

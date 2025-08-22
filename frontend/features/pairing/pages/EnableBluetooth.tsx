@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { PairContainer } from './components/PairContainer';
+import React, { useContext, useEffect, useState } from 'react';
+import { PairContainer } from '../components/PairContainer';
 import { Bluetooth, Power } from 'lucide-react-native';
-import { IconButton } from '../../components/core/IconButton';
-import { usePairDeviceStore } from '../../stores/pairDeviceStore';
-import { BLEService } from '../../services/BLEService';
-import { LoadingView } from '../../components/core/LoadingView';
+import { IconButton } from '@/components/core/IconButton';
+import { BLEService } from '@/services/BLEService';
+import { LoadingView } from '@/components/core/LoadingView';
 import { State } from 'react-native-ble-plx';
-import { useOnForegroundFocus } from '../../hooks/OnFocus';
+import { useOnForegroundFocus } from '@/hooks/OnFocus';
+import { PaginatorContext } from '../components/paginator';
 
 export function EnableBluetooth(): React.JSX.Element {
-    const { nextEnabled, setNextEnabled } = usePairDeviceStore();
+    const { isNextEnabled, setNextEnabled } = useContext(PaginatorContext);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -41,8 +41,8 @@ export function EnableBluetooth(): React.JSX.Element {
         <PairContainer>
             <PairContainer.Icon IconComponent={Power} />
             <PairContainer.Title text="Turn on bluetooth" />
-            <PairContainer.SubTitle text={nextEnabled ? 'Bluetooth is ready to be used, you can proceed to the next step.' : 'Let\'s make sure bluetooth is enabled on your device.'} />
-            {!nextEnabled && <LoadingView loading={loading}>
+            <PairContainer.SubTitle text={isNextEnabled ? 'Bluetooth is ready to be used, you can proceed to the next step.' : 'Let\'s make sure bluetooth is enabled on your device.'} />
+            {!isNextEnabled && <LoadingView loading={loading}>
                 <IconButton label="Enable Bluetooth" icon={<Bluetooth size={16} />} onPress={enableBluetoothForUser} />
             </LoadingView>}
         </PairContainer>

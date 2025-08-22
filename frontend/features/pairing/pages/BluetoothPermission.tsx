@@ -1,24 +1,22 @@
 import { Check, Search } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
-import { PairContainer } from './components/PairContainer';
-import { Card } from '../../components/core/Card';
+import React, { useContext, useEffect, useState } from 'react';
+import { PairContainer } from '../components/PairContainer';
+import { Card } from '@/components/core/Card';
 import { StyleSheet, Text, View } from 'react-native';
-import { List } from '../../components/core/List';
-import { Description } from '../../components/text';
-import { Button } from '../../components/core/Button';
-import { usePairDeviceStore } from '../../stores/pairDeviceStore';
-import { Color } from '../../theme/Color';
-import { BLEService } from '../../services/BLEService';
+import { List } from '@/components/core/List';
+import { Description } from '@/components/text';
+import { Button } from '@/components/core/Button';
+import { Color } from '@/theme/Color';
+import { BLEService } from '@/services/BLEService';
 import { useNavigation } from '@react-navigation/native';
+import { PaginatorContext } from '../components/paginator';
 
 export function BluetoothPermission(): React.JSX.Element {
     const navigation = useNavigation();
-    const { setNextEnabled } = usePairDeviceStore();
+    const { setNextEnabled } = useContext(PaginatorContext);
     const [hasPermissions, setPermissions] = useState(false);
 
-    BLEService.hasPermissions().then(hasPermission => {
-        setPermissions(hasPermission);
-    });
+    BLEService.hasPermissions().then(setPermissions);
 
     useEffect(() => {
         setNextEnabled(hasPermissions);

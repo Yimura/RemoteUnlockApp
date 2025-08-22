@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { PairContainer } from './components/PairContainer';
+import React, { useContext, useEffect, useState } from 'react';
+import { PairContainer } from '../components/PairContainer';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { ProgressBar } from '../../components/core/ProgressBar';
-import { usePairDeviceStore } from '../../stores/pairDeviceStore';
-import { ScannedDevice } from './components/ScannedDevice';
-import { BLEService } from '../../services/BLEService';
+import { ProgressBar } from '@/components/core/ProgressBar';
+import { usePairDeviceStore } from '@/stores/pairDeviceStore';
+import { ScannedDevice } from '../components/ScannedDevice';
+import { BLEService } from '@/services/BLEService';
 import { Device } from 'react-native-ble-plx';
+import { PaginatorContext } from '../components/paginator';
 
 const SCAN_PERIOD = 3e4;
 const SCAN_PROGRESS_DEFINITION = 50;
@@ -55,7 +56,7 @@ export function ScanDevices(): React.JSX.Element {
         }
     }, [scanning]);
 
-    const { setNextEnabled } = usePairDeviceStore();
+    const { setNextEnabled } = useContext(PaginatorContext);
     useEffect(() => {
         setNextEnabled(false);
 

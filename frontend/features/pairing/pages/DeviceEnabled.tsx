@@ -1,5 +1,5 @@
 import React from 'react';
-import { PairContainer } from './components/PairContainer';
+import { PairContainer } from '../components/PairContainer';
 import { Bluetooth } from 'lucide-react-native';
 
 export function DeviceEnabled(): React.JSX.Element {
