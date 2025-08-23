@@ -25,6 +25,11 @@ RUN apt update &&\
 RUN sdkmanager "platform-tools" &&\
     chown -R node:node /opt/android-sdk
 
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb &&\
+    apt install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb &&\
+    rm ./google-chrome-stable_current_amd64.deb &&\
+    sed -e 's|exec -a "$0" "$HERE/chrome" "$@"|exec -a "$0" "$HERE/chrome" "$@" "--ozone-platform=wayland"|g' /usr/bin/google-chrome | sudo tee /usr/bin/google-chrome
+
 USER ${USER}
 
 RUN echo "export ANDROID_HOME=/opt/android-sdk" >> ~/.bashrc
