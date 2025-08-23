@@ -33,7 +33,7 @@ export function PaginatorFooter({ currentPage, numberOfPages, setPage, previousB
         const newPage = currentPage + 1;
         onPageUpdate?.(newPage, numberOfPages);
 
-        if (!isNextEnabled || currentPage === numberOfPages) {
+        if (currentPage === numberOfPages) {
             return;
         }
         setPage(newPage);
