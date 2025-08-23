@@ -4,13 +4,17 @@ import { Card } from '@/components/core/Card';
 import { Paginator } from './components/paginator';
 import { Welcome, BluetoothPermission, EnableBluetooth, DeviceEnabled, ScanDevices, ConnectingTo, ConnectionComplete } from './pages';
 import { useNavigation } from '@react-navigation/native';
+import { usePairDeviceStore } from './stores/pairDeviceStore';
 
 export function PairDevicePage(): React.JSX.Element {
     const navigation = useNavigation();
+    const { reset } = usePairDeviceStore();
     const [currentPage, setPage] = useState(1);
 
     const pageUpdate = (page: number, numberOfPages: number) => {
         if (page > numberOfPages) {
+            reset();
+
             navigation.goBack();
         }
     };

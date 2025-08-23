@@ -2,11 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { PairContainer } from '../components/PairContainer';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { ProgressBar } from '@/components/core/ProgressBar';
-import { usePairDeviceStore } from '@/stores/pairDeviceStore';
+import { usePairDeviceStore } from '../stores/pairDeviceStore';
 import { ScannedDevice } from '../components/ScannedDevice';
 import { BLEService } from '@/services/BLEService';
 import { Device } from 'react-native-ble-plx';
 import { PaginatorContext } from '../components/paginator';
+import { IconButton } from '@/components/core/IconButton';
+import { RefreshCcw } from 'lucide-react-native';
 
 const SCAN_PERIOD = 3e4;
 const SCAN_PROGRESS_DEFINITION = 50;
@@ -15,11 +17,12 @@ export function ScanDevices(): React.JSX.Element {
     const { selectedDevice, selectDevice } = usePairDeviceStore();
 
     const [scanning, setScanning] = useState(true);
-    const [progress, setProgress] = useState(0.0);
+    const [progress, setProgress] = useState(0);
     const [devices, setDevices] = useState(new Map<Device['id'], Device>());
 
     useEffect(() => {
         if (scanning) {
+            setProgress(0);
             BLEService.stopDeviceScan().then(() => {
                 BLEService.startDeviceScan(['7ccf30e3-a9af-45b2-8d1d-f58e4d30ff95'], null, async (err, device) => {
                     if (err || !device) {
@@ -84,7 +87,7 @@ export function ScanDevices(): React.JSX.Element {
                     {scanning && <ProgressBar progress={progress} />}
                 </View>
 
-                <FlatList data={[...devices.values()]} keyExtractor={(item) => item.id} renderItem={({ item, index }) =>
+                <FlatList ListEmptyComponent={!scanning ? <IconButton label={'Retry'} icon={<RefreshCcw />} onPress={() => setScanning(true)} /> : null} data={[...devices.values()]} keyExtractor={(item) => item.id} renderItem={({ item, index }) =>
                     <ScannedDevice
                         key={index}
                         deviceName={item.localName || 'Unknown'}
