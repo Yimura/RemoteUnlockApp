@@ -4,19 +4,28 @@ import type { PressableStateCallbackType } from 'react-native';
 import { BgColor, BorderColor } from '../../theme/Theme';
 
 export interface ButtonProps extends PressableProps { }
-export function Button({ style, disabled = false, ...props }: ButtonProps): React.JSX.Element {
-
-
+export function Button({ style, disabled = false, onPress, ...props }: ButtonProps): React.JSX.Element {
     const setStyle = ({ pressed }: PressableStateCallbackType) => {
         if (typeof style === 'function') {
             return StyleSheet.flatten([styles.button, pressed ? styles.buttonTouch : {}, style({ pressed: disabled ? false : pressed })]);
         }
 
-        return StyleSheet.flatten([style, styles.button, pressed && !disabled ? styles.buttonTouch : {}, disabled ? styles.buttonDisabled : {}]);
+        return StyleSheet.flatten([
+            style,
+            styles.button,
+            pressed && !disabled ? styles.buttonTouch : {}, // pressed and not disabled
+            disabled ? styles.buttonDisabled : {}, // disabled
+        ]);
+    };
+
+    const onPressInterceptor = (e) => {
+        if (!disabled) {
+            onPress?.(e);
+        }
     };
 
     return (
-        <Pressable {...props} style={setStyle} />
+        <Pressable {...props} disabled={disabled} onPress={onPressInterceptor} style={setStyle} />
     );
 }
 
@@ -37,6 +46,6 @@ const styles = StyleSheet.create({
         backgroundColor: BgColor,
     },
     buttonDisabled: {
-        opacity: 0.7,
+        opacity: 0.2,
     },
 });
