@@ -1,8 +1,20 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { PairContainer } from '../components/PairContainer';
 import { Bluetooth } from 'lucide-react-native';
+import { PaginatorContext } from '../components/paginator';
 
 export function DeviceEnabled(): React.JSX.Element {
+    const { setNextButtonLabel } = useContext(PaginatorContext);
+
+    useEffect(() => {
+        setNextButtonLabel('Scan for devices');
+
+        return () => {
+            setNextButtonLabel(null);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
         <PairContainer>
             <PairContainer.Icon IconComponent={Bluetooth} />

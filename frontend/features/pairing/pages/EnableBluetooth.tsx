@@ -9,10 +9,12 @@ import { useOnForegroundFocus } from '@/hooks/OnFocus';
 import { PaginatorContext } from '../components/paginator';
 
 export function EnableBluetooth(): React.JSX.Element {
-    const { isNextEnabled, setNextEnabled } = useContext(PaginatorContext);
+    const { isNextEnabled, setNextEnabled, setNextButtonLabel } = useContext(PaginatorContext);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setNextButtonLabel('Continue');
+
         BLEService.state().then(state => {
             const bluetoothEnabled = state === State.PoweredOn;
             setLoading(false);
@@ -21,6 +23,7 @@ export function EnableBluetooth(): React.JSX.Element {
 
         return () => {
             setNextEnabled(true);
+            setNextButtonLabel(null);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

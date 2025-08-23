@@ -56,12 +56,14 @@ export function ScanDevices(): React.JSX.Element {
         }
     }, [scanning]);
 
-    const { setNextEnabled } = useContext(PaginatorContext);
+    const { setNextEnabled, setNextButtonLabel } = useContext(PaginatorContext);
     useEffect(() => {
         setNextEnabled(false);
+        setNextButtonLabel('Connect');
 
         return () => {
             setNextEnabled(true);
+            setNextButtonLabel(null);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

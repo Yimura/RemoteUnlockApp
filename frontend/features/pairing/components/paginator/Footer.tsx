@@ -4,28 +4,39 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
+export type PageUpdateEventHandler = (page: number, numberOfPage: number) => void;
+
 interface PaginatorFooterProps {
     currentPage: number;
     numberOfPages: number;
     setPage: (page: number) => void;
 
-    isNextEnabled: boolean;
-}
-export function PaginatorFooter({ currentPage, numberOfPages, isNextEnabled, setPage }: PaginatorFooterProps): React.JSX.Element {
-    let previousButtonLabel, nextButtonLabel;
+    previousButtonLabel: string | null;
+    nextButtonLabel: string | null;
 
+    isNextEnabled: boolean;
+
+    onPageUpdate?: PageUpdateEventHandler;
+}
+export function PaginatorFooter({ currentPage, numberOfPages, setPage, previousButtonLabel, nextButtonLabel, isNextEnabled, onPageUpdate }: PaginatorFooterProps): React.JSX.Element {
     const previousPage = () => {
-        if (currentPage <= 1) {
+        const newPage = currentPage - 1;
+        onPageUpdate?.(newPage, numberOfPages);
+
+        if (newPage === 0) {
             return;
         }
-        setPage(currentPage - 1);
+        setPage(newPage);
     };
 
     const nextPage = () => {
+        const newPage = currentPage + 1;
+        onPageUpdate?.(newPage, numberOfPages);
+
         if (!isNextEnabled || currentPage === numberOfPages) {
             return;
         }
-        setPage(currentPage + 1);
+        setPage(newPage);
     };
 
     return (

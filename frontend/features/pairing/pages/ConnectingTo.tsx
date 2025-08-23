@@ -8,7 +8,7 @@ import { RemoteUnlockDevice } from '@/ble/RemoteUnlockDevice';
 import { PaginatorContext } from '../components/paginator';
 
 export function ConnectingTo(): React.JSX.Element {
-    const { setNextEnabled } = useContext(PaginatorContext);
+    const { setNextEnabled, setNextButtonLabel } = useContext(PaginatorContext);
     const { selectedDevice } = usePairDeviceStore();
     const { add } = useDeviceStore();
     const [connecting, setConnecting] = useState(false);
@@ -16,9 +16,11 @@ export function ConnectingTo(): React.JSX.Element {
 
     useEffect(() => {
         setNextEnabled(false);
+        setNextButtonLabel('Continue');
 
         return () => {
             setNextEnabled(true);
+            setNextButtonLabel(null);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
