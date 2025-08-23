@@ -14,22 +14,17 @@ import { PaginatorContext } from '../components/paginator';
 export function BluetoothPermission(): React.JSX.Element {
     const navigation = useNavigation();
     const { setNextEnabled, setNextButtonLabel } = useContext(PaginatorContext);
-    const [hasPermissions, setPermissions] = useState(false);
-
-    BLEService.hasPermissions().then(setPermissions);
 
     useEffect(() => {
-        setNextEnabled(hasPermissions);
         setNextButtonLabel('Continue');
+        setNextEnabled(false);
 
         return () => {
-            setNextEnabled(true);
             setNextButtonLabel(null);
+            setNextEnabled(true);
         };
-
-        // Disable the eslist-next-line so that this effect can be run onmount, which doesn't require dependencies.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [hasPermissions]);
+    }, []);
 
     const userConsent = async () => {
         const result = await BLEService.requestPermissions();
