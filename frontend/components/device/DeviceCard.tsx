@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { IconButton } from '../core/IconButton';
-import { Lock, Settings, Unlock } from 'lucide-react-native';
+import { Settings } from 'lucide-react-native';
 import { Card } from '../core/Card';
 import { Description, Title } from '../text';
-import { LoadingButton } from '../core/LoadingButton';
-import { useDeviceStore } from '../../stores/deviceStore';
 import { BatteryIndicator, ConnectionIndicator, LastSeenIndicator, LockIndicator } from './indicators';
-import { useRootNavigation } from '../../hooks/Navigation';
-import { LockState, RemoteUnlockDevice } from '../../ble/RemoteUnlockDevice';
+import { useRootNavigation } from '@/hooks/Navigation';
+import { RemoteUnlockDevice } from '@/ble/RemoteUnlockDevice';
+import { DeviceConnectionToggle } from './DeviceConnectionToggle';
+import { DeviceLockButton } from './DeviceLockButton';
+import { DeviceUnlockButton } from './DeviceUnlockButton';
 
 export interface DeviceCardProps {
     device: RemoteUnlockDevice;
@@ -16,40 +17,6 @@ export interface DeviceCardProps {
 }
 export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Element {
     const navigation = useRootNavigation();
-    const [isLoading, setIsLoading] = useState(false);
-    const { update } = useDeviceStore();
-
-    const toggleConnection = async () => {
-        setIsLoading(true);
-        if (!await device.ble.isConnected()) {
-            await device.connect();
-        }
-        else {
-            await device.disconnect();
-        }
-        update(device);
-        setIsLoading(false);
-    };
-
-    const lock = async () => {
-        try {
-            await device.doors.setState(LockState.Locked);
-            device.locked = LockState.Locked;
-            update(device);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const unlock = async () => {
-        try {
-            await device.doors.setState(LockState.Unlocked);
-            device.locked = LockState.Unlocked;
-            update(device);
-        } catch (error) {
-            console.error(error);
-        }
-    };
 
     return (
         <Card style={style}>
@@ -59,7 +26,7 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
                     <Description>BLE Unlock Std • Auto-lock enabled</Description>
                 </View>
                 <View>
-                    <LoadingButton label={device.connected ? 'Disconnect' : 'Connect'} isLoading={isLoading} onPress={toggleConnection} />
+                    <DeviceConnectionToggle device={device} />
                 </View>
             </View>
             <View style={styles.quickInfo}>
@@ -70,8 +37,8 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
                     <LastSeenIndicator date={device.lastConnected} />
                 </View>
                 <View style={styles.lockButtons}>
-                    <IconButton onPress={unlock} icon={<Unlock size={16} />} />
-                    <IconButton onPress={lock} icon={<Lock size={16} />} />
+                    <DeviceUnlockButton device={device} />
+                    <DeviceLockButton device={device} />
                 </View>
             </View>
             <View>
