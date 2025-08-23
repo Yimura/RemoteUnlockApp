@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Car, Settings } from 'lucide-react-native';
 import React from 'react';
 import { MyVehiclesPage } from './features/my-vehicles';
-import { SettingsPage } from './pages/SettingsPage';
+import { SettingsPage } from './features/settings';
 import { BottomTabParamList } from './Routes';
 
 interface TabBarIconProps {
