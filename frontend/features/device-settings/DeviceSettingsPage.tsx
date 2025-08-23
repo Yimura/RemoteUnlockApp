@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { Card } from '../components/core/Card';
-import { Color } from '../theme/Color';
-import { IconButton } from '../components/core/IconButton';
-import { Trash2 } from 'lucide-react-native';
-import { Description, Title } from '../components/text';
-import { Button } from '../components/core/Button';
-import { SettingItem } from '../components/settings/SettingItem';
-import { Slider } from '../components/core/Slider';
-import { useDeviceStore } from '../stores/deviceStore';
-import { useNavigation } from '@react-navigation/native';
+import { Card } from '../../components/core/Card';
+import { Color } from '../../theme/Color';
+import { Description, Title } from '../../components/text';
+import { Button } from '../../components/core/Button';
+import { SettingItem } from '../../components/settings/SettingItem';
+import { Slider } from '../../components/core/Slider';
+import { useDeviceStore } from '../../stores/deviceStore';
+import { RemoveDevice } from './components';
+import { DeviceConnectionToggle } from '@/components/device';
 
 interface DeviceSettingsPageRoute {
     route: {
@@ -20,10 +19,8 @@ interface DeviceSettingsPageRoute {
 }
 
 export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JSX.Element {
-    const navigation = useNavigation();
-
-    const { get, remove } = useDeviceStore();
-    const device = get(route.params.id);
+    const { get } = useDeviceStore();
+    const device = get(route.params.id)!;
 
     const [deviceName, setDeviceName] = useState(device?.ble.localName || 'Unknown');
     const [proximityThreshold, setProximityThreshold] = useState(5);
@@ -38,16 +35,6 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
         }
     };
 
-    const deleteDevice = () => {
-        if (device) {
-            remove(device.ble.id);
-
-            device.ble.cancelConnection();
-        }
-
-        navigation.goBack();
-    };
-
     return (
         <View style={styles.container}>
             <Card style={styles.deviceSettings}>
@@ -56,9 +43,7 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
                         <Title>Device Information</Title>
                         <Description>Configure your device settings</Description>
                     </View>
-                    <Button>
-                        <Text>{device?.connected ? 'Disconnect' : 'Connect'}</Text>
-                    </Button>
+                    <DeviceConnectionToggle device={device} />
                 </View>
                 <View>
                     <Text>Device Name</Text>
@@ -83,19 +68,7 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
                     <Text style={styles.saveTxt}>Save Changes</Text>
                 </Button>
             </Card>
-            <Card style={styles.deviceRemove}>
-                <View>
-                    <Title style={{ color: Color.Red }}>Danger Zone</Title>
-                    <Description>Remove this device from your paired devices.</Description>
-                </View>
-                <IconButton
-                    icon={<Trash2 size={16} color={Color.White} />}
-                    label="Remove Device"
-                    style={({ pressed }) => pressed ? styles.deviceRemoveBtnPressed : styles.deviceRemoveBtn}
-                    textStyle={styles.deviceRemoveBtnTxt}
-                    onPress={deleteDevice}
-                />
-            </Card>
+            <RemoveDevice device={device} />
         </View>
     );
 }
@@ -130,20 +103,5 @@ const styles = StyleSheet.create({
     },
     saveBtnPressed: {
         backgroundColor: Color.OffBlue,
-    },
-    deviceRemove: {
-        borderColor: Color.Red,
-        borderWidth: 1,
-
-        gap: 16,
-    },
-    deviceRemoveBtn: {
-        backgroundColor: Color.Red,
-    },
-    deviceRemoveBtnPressed: {
-        backgroundColor: Color.OffRed,
-    },
-    deviceRemoveBtnTxt: {
-        color: Color.White,
     },
 });

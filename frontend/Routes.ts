@@ -1,6 +1,6 @@
 import { DeviceId } from 'react-native-ble-plx';
 import { Navigator } from './Navigator';
-import { DeviceSettingsPage } from './pages/DeviceSettingsPage';
+import { DeviceSettingsPage } from './features/device-settings';
 import { PairDevicePage } from './features/pairing';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
