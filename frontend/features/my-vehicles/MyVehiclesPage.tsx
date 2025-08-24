@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { DeviceCard } from '@/components/device/DeviceCard';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { MainBgColor } from '@/theme/Theme';
-import { NoDevicesPaired } from './components';
+import { DeviceCard, NoDevicesPaired } from './components';
 
 export function MyVehiclesPage(): React.JSX.Element {
     const { devices, refresh, isRefreshing } = useDeviceStore();

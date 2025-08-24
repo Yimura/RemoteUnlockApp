@@ -1,5 +1,5 @@
 import { BatteryCharging, BatteryFull, BatteryLow, BatteryMedium } from 'lucide-react-native';
-import { Color } from '../../../theme/Color';
+import { Color } from '../../../../theme/Color';
 import React from 'react';
 import { Indicator } from './Indicator';
 

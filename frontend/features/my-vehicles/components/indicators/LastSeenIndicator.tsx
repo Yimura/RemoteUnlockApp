@@ -1,8 +1,8 @@
 import { Clock4 } from 'lucide-react-native';
 import React from 'react';
 import { Indicator } from './Indicator';
-import { GetTimeAgo } from '../../../util/Time';
-import { Color } from '../../../theme/Color';
+import { GetTimeAgo } from '../../../../util/Time';
+import { Color } from '../../../../theme/Color';
 
 interface LastSeenIndicatorProps {
     date?: Date;

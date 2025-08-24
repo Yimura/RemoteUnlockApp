@@ -1,3 +1,4 @@
+import { DeviceCard } from './DeviceCard';
 import { NoDevicesPaired } from './NoDevicesPaired';
 
-export { NoDevicesPaired };
+export { DeviceCard, NoDevicesPaired };

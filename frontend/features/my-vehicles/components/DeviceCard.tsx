@@ -1,15 +1,15 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { IconButton } from '../core/IconButton';
+import { IconButton } from '@/components/core/IconButton';
 import { Settings } from 'lucide-react-native';
-import { Card } from '../core/Card';
-import { Description, Title } from '../text';
+import { Card } from '@/components/core/Card';
+import { Description, Title } from '@/components/text';
 import { BatteryIndicator, ConnectionIndicator, LastSeenIndicator, LockIndicator } from './indicators';
 import { useRootNavigation } from '@/hooks/Navigation';
 import { RemoteUnlockDevice } from '@/ble/RemoteUnlockDevice';
-import { DeviceConnectionToggle } from './DeviceConnectionToggle';
-import { DeviceLockButton } from './DeviceLockButton';
-import { DeviceUnlockButton } from './DeviceUnlockButton';
+import { DeviceConnectionToggle } from '@/components/device/DeviceConnectionToggle';
+import { DeviceLockButton } from '@/components/device/DeviceLockButton';
+import { DeviceUnlockButton } from '@/components/device/DeviceUnlockButton';
 
 export interface DeviceCardProps {
     device: RemoteUnlockDevice;

@@ -1,5 +1,5 @@
 import { Circle } from 'lucide-react-native';
-import { Color } from '../../../theme/Color';
+import { Color } from '../../../../theme/Color';
 import { Indicator } from './Indicator';
 import React from 'react';
 

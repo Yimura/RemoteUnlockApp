@@ -1,8 +1,8 @@
 import { Circle } from 'lucide-react-native';
 import { Indicator } from './Indicator';
 import React from 'react';
-import { Color } from '../../../theme/Color';
-import { LockState } from '../../../stores/deviceStore';
+import { Color } from '../../../../theme/Color';
+import { LockState } from '../../../../stores/deviceStore';
 
 interface LockIndicatorProps {
     locked: LockState;
