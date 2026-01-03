@@ -9,11 +9,12 @@ import { Button } from '@/components/core/Button';
 import { Color } from '@/theme/Color';
 import { useNavigation } from '@react-navigation/native';
 import { PaginatorContext } from '../components/paginator';
-import { requestBluetoothPermissions } from '@/util/Bluetooth';
+import { hasBluetoothPermissions, requestBluetoothPermissions } from '@/util/Bluetooth';
+import { ForcedLoader } from '../components/ForcedLoader';
 
 export function BluetoothPermission(): React.JSX.Element {
     const navigation = useNavigation();
-    const { setNextEnabled, setNextButtonLabel } = useContext(PaginatorContext);
+    const { currentPage, setPage, setNextEnabled, setNextButtonLabel } = useContext(PaginatorContext);
 
     useEffect(() => {
         setNextButtonLabel('Continue');
@@ -25,6 +26,12 @@ export function BluetoothPermission(): React.JSX.Element {
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const goToNextPage = (evaluated: boolean) => {
+        if (evaluated) {
+            setPage(currentPage + 1);
+        }
+    };
 
     const userConsent = async () => {
         const result = await requestBluetoothPermissions();
@@ -38,23 +45,25 @@ export function BluetoothPermission(): React.JSX.Element {
             <PairContainer.Title text="Allow Bluetooth Scanning" />
             <PairContainer.SubTitle text="To discover nearby devices, we need permission to scan for Bluetooth devices." />
 
-            <Card style={styles.permissionCard}>
-                <Text>This app would like to:</Text>
-                <List ListDecorator={Check}>
-                    <Text>Scan for nearby Bluetooth devices</Text>
-                    <Text>Access device information (name, id)</Text>
-                    <Text>Connect to selected devices</Text>
-                </List>
-                <Description>We only use this information to help you connect to your devices. We don't store or share this data.</Description>
-                <View style={styles.permissionButtons}>
-                    <Button style={styles.permissionButton} onPress={navigation.goBack}>
-                        <Text>Deny</Text>
-                    </Button>
-                    <Button style={({ pressed }) => [styles.permissionButton, pressed ? styles.allowButtonPressed : styles.allowButton]} onPress={userConsent}>
-                        <Text style={styles.allowText}>Allow</Text>
-                    </Button>
-                </View>
-            </Card>
+            <ForcedLoader stateCheck={hasBluetoothPermissions} timeoutCallback={goToNextPage}>
+                <Card style={styles.permissionCard}>
+                    <Text>This app would like to:</Text>
+                    <List ListDecorator={Check}>
+                        <Text>Scan for nearby Bluetooth devices</Text>
+                        <Text>Access device information (name, id)</Text>
+                        <Text>Connect to selected devices</Text>
+                    </List>
+                    <Description>We only use this information to help you connect to your devices. We don't store or share this data.</Description>
+                    <View style={styles.permissionButtons}>
+                        <Button style={styles.permissionButton} onPress={navigation.goBack}>
+                            <Text>Deny</Text>
+                        </Button>
+                        <Button style={({ pressed }) => [styles.permissionButton, pressed ? styles.allowButtonPressed : styles.allowButton]} onPress={userConsent}>
+                            <Text style={styles.allowText}>Allow</Text>
+                        </Button>
+                    </View>
+                </Card>
+            </ForcedLoader>
         </PairContainer>
     );
 }
