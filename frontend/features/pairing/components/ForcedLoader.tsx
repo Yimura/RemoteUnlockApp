@@ -1,3 +1,4 @@
+import { Color } from '@/theme/Color';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View, type ViewProps } from 'react-native';
 
@@ -38,7 +39,7 @@ export function ForcedLoader({ stateCheck, timeoutCallback, timeoutFailure = 250
 
     return (
         <View {...props}>
-            {state ? children : <ActivityIndicator />}
+            {state ? children : <ActivityIndicator size={'large'} color={Color.Blue} />}
         </View>
     );
 }
