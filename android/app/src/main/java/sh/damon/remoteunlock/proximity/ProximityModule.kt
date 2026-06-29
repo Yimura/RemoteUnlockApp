@@ -13,6 +13,8 @@ class ProximityModule(reactCtx: ReactApplicationContext) : ReactContextBaseJavaM
     private val ctx: ReactApplicationContext = reactCtx
     private val store get() = ProximityConfigStore(ctx)
 
+    @Volatile private var captureInFlight: ScanCallback? = null
+
     override fun getName() = "ProximityModule"
 
     @ReactMethod
@@ -72,6 +74,11 @@ class ProximityModule(reactCtx: ReactApplicationContext) : ReactContextBaseJavaM
 
     @ReactMethod
     fun captureRssi(mac: String, durationMs: Double, p: Promise) {
+        if (captureInFlight != null) {
+            p.reject("E_BUSY", "Calibration already in progress")
+            return
+        }
+
         val adapter = BluetoothAdapter.getDefaultAdapter()
         val scanner = adapter?.bluetoothLeScanner
         if (scanner == null) { p.reject("E_BT", "No BLE scanner"); return }
@@ -82,6 +89,7 @@ class ProximityModule(reactCtx: ReactApplicationContext) : ReactContextBaseJavaM
                 if (result.device.address == mac) samples += result.rssi
             }
         }
+        captureInFlight = cb
         val filter = ScanFilter.Builder().setDeviceAddress(mac).build()
         val settings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -90,10 +98,12 @@ class ProximityModule(reactCtx: ReactApplicationContext) : ReactContextBaseJavaM
         try {
             scanner.startScan(listOf(filter), settings, cb)
         } catch (e: SecurityException) {
+            captureInFlight = null
             p.reject("E_PERM", "Missing BLUETOOTH_SCAN", e); return
         }
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
             try { scanner.stopScan(cb) } catch (_: SecurityException) {}
+            captureInFlight = null
             if (samples.isEmpty()) { p.reject("E_NO_SIGNAL", "No samples"); return@postDelayed }
             samples.sort()
             val median = samples[samples.size / 2]
