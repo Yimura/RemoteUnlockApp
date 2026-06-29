@@ -21,11 +21,11 @@ export function useProximityConfig(mac: string) {
     }, [cached, reload]);
 
     const save = useCallback(async (partial: Partial<ProximityConfig>) => {
-        const current = cached ?? await ProximityModule.getConfig(mac);
+        const current = useProximityStore.getState().configs[mac] ?? await ProximityModule.getConfig(mac);
         const next: ProximityConfig = { ...current, ...partial };
         await ProximityModule.setConfig(mac, next);
         setStore(mac, next);
-    }, [mac, cached, setStore]);
+    }, [mac, setStore]);
 
     return { config: cached, loading, save, reload };
 }
