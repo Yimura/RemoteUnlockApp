@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BellOff } from 'lucide-react-native';
 import { RootStackParamList } from '@/Routes';
 import { Card } from '@/components/core/Card';
 import { Button } from '@/components/core/Button';
@@ -8,6 +9,7 @@ import { Description, Title } from '@/components/text';
 import { SettingItem } from '@/components/settings/SettingItem';
 import { Color } from '@/theme/Color';
 import { BorderColor, TextColor } from '@/theme/Theme';
+import { hasNotificationPermission, requestNotificationPermission } from '@/util/Notifications';
 import { useProximityConfig } from '../hooks/use-proximity-config';
 import { Mode } from '../services/proximity-module';
 import { CalibrationModal } from '../components/calibration-modal';
@@ -24,6 +26,7 @@ export function ProximitySettingsPage({ route }: Props): React.JSX.Element {
     const { mac } = route.params;
     const { config, loading, save } = useProximityConfig(mac);
     const [calibrating, setCalibrating] = useState<'enter' | 'exit' | null>(null);
+    const [notifBlocked, setNotifBlocked] = useState(false);
 
     if (loading || !config) {
         return (
@@ -32,6 +35,21 @@ export function ProximitySettingsPage({ route }: Props): React.JSX.Element {
             </View>
         );
     }
+
+    const onPickMode = async (next: Mode) => {
+        if (next !== 'OFF') {
+            const already = await hasNotificationPermission();
+            if (!already) {
+                const granted = await requestNotificationPermission();
+                setNotifBlocked(!granted);
+            } else {
+                setNotifBlocked(false);
+            }
+        } else {
+            setNotifBlocked(false);
+        }
+        save({ mode: next, enabled: next !== 'OFF' });
+    };
 
     return (
         <View style={styles.container}>
@@ -46,7 +64,7 @@ export function ProximitySettingsPage({ route }: Props): React.JSX.Element {
                         return (
                             <Button
                                 key={m.value}
-                                onPress={() => save({ mode: m.value, enabled: m.value !== 'OFF' })}
+                                onPress={() => onPickMode(m.value)}
                                 style={({ pressed }) => StyleSheet.flatten([
                                     styles.modeRow,
                                     selected ? styles.modeRowSelected : null,
@@ -63,6 +81,26 @@ export function ProximitySettingsPage({ route }: Props): React.JSX.Element {
                         );
                     })}
                 </View>
+                {notifBlocked && config.mode !== 'OFF' && (
+                    <View style={styles.notifWarn}>
+                        <BellOff size={18} color={Color.Orange} />
+                        <View style={styles.notifWarnText}>
+                            <Text style={styles.notifWarnTitle}>Notifications disabled</Text>
+                            <Description>
+                                Without notifications you won't see the persistent service banner or
+                                tap-to-unlock prompts. The proximity service still runs.
+                            </Description>
+                        </View>
+                        <Button
+                            onPress={() => Linking.openSettings()}
+                            style={({ pressed }) => StyleSheet.flatten([
+                                styles.notifWarnBtn,
+                                pressed ? styles.notifWarnBtnPressed : null,
+                            ])}>
+                            <Text style={styles.notifWarnBtnTxt}>Settings</Text>
+                        </Button>
+                    </View>
+                )}
             </Card>
 
             <Card style={styles.card}>
@@ -188,6 +226,36 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
     },
     actionBtnTxt: {
+        color: Color.White,
+        fontWeight: '600',
+    },
+    notifWarn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        backgroundColor: 'rgba(217, 119, 6, 0.08)',
+        borderWidth: 1,
+        borderColor: Color.Orange,
+        borderRadius: 8,
+        padding: 10,
+    },
+    notifWarnText: {
+        flex: 1,
+    },
+    notifWarnTitle: {
+        color: TextColor,
+        fontWeight: '600',
+    },
+    notifWarnBtn: {
+        backgroundColor: Color.Orange,
+        borderColor: Color.Orange,
+        paddingHorizontal: 12,
+    },
+    notifWarnBtnPressed: {
+        backgroundColor: 'rgb(184, 100, 6)',
+        borderColor: 'rgb(184, 100, 6)',
+    },
+    notifWarnBtnTxt: {
         color: Color.White,
         fontWeight: '600',
     },
