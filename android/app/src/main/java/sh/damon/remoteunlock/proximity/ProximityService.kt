@@ -1,8 +1,5 @@
 package sh.damon.remoteunlock.proximity
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
@@ -15,7 +12,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.ParcelUuid
 import android.os.SystemClock
-import androidx.core.app.NotificationCompat
 import java.util.UUID
 
 class ProximityService : Service() {
@@ -27,6 +23,13 @@ class ProximityService : Service() {
     private val engines = mutableMapOf<String, ProximityEngine>()
     private val handler = Handler(Looper.getMainLooper())
     @Volatile private var scannerMode: ProximityScanner.Mode = ProximityScanner.Mode.LOW_POWER
+
+    // Tracking for the persistent notification: primary MAC = most recently seen
+    // enabled device. Used for the Unlock/Lock action buttons and for the
+    // status summary line ("Far -55 dBm" etc).
+    private var primaryMac: String? = null
+    private var primaryLastRssi: Int? = null
+    private var primaryLastSeenMs: Long = 0L
 
     // Flip to true once MotionGate is reliable. While false, the scanner runs
     // unconditionally regardless of detected activity.
@@ -116,24 +119,33 @@ class ProximityService : Service() {
     override fun onBind(intent: Intent?) = null
 
     private fun startForegroundInternal() {
-        val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            nm.createNotificationChannel(NotificationChannel(
-                CHANNEL, "Proximity", NotificationManager.IMPORTANCE_LOW
-            ))
-        }
-        val notif: Notification = NotificationCompat.Builder(this, CHANNEL)
-            .setContentTitle("Proximity active")
-            .setContentText("Watching for nearby vehicle")
-            .setSmallIcon(android.R.drawable.ic_lock_idle_lock)
-            .setOngoing(true)
-            .build()
+        ProximityNotifier.ensureChannel(applicationContext)
+        postNotification()
+    }
+
+    private fun postNotification() {
+        val status = computeStatus()
+        val notif = ProximityNotifier.build(applicationContext, primaryMac, status, primaryLastRssi)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(NOTIF_ID, notif,
+            startForeground(ProximityNotifier.NOTIF_ID, notif,
                 android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or
                 android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
         } else {
-            startForeground(NOTIF_ID, notif)
+            startForeground(ProximityNotifier.NOTIF_ID, notif)
+        }
+    }
+
+    private fun computeStatus(): ProximityNotifier.Status {
+        val mac = primaryMac ?: return ProximityNotifier.Status.NoDevice
+        val now = SystemClock.elapsedRealtime()
+        if (now - primaryLastSeenMs > NO_DEVICE_AFTER_MS) return ProximityNotifier.Status.NoDevice
+        val cfg = store.get(mac)
+        val rssi = primaryLastRssi ?: return ProximityNotifier.Status.NoDevice
+        val engineState = engines[mac]?.state
+        return when {
+            engineState == ProximityEngine.State.NEAR  -> ProximityNotifier.Status.Near
+            rssi >= cfg.exitRssi                        -> ProximityNotifier.Status.Nearing
+            else                                        -> ProximityNotifier.Status.Far
         }
     }
 
@@ -151,6 +163,11 @@ class ProximityService : Service() {
         val event = engine.push(rssi, t)
         ProximityLog.d("Scan", "$mac rssi=$rssi state=${engine.state}${event?.let { " event=$it" } ?: ""}")
         event?.let { dispatcher.onEvent(mac, it) }
+
+        primaryMac = mac
+        primaryLastRssi = rssi
+        primaryLastSeenMs = SystemClock.elapsedRealtime()
+        postNotification()
 
         val targetMode = decideScannerMode()
         if (targetMode != scannerMode) {
@@ -194,6 +211,7 @@ class ProximityService : Service() {
                 e.tick(now)?.let { dispatcher.onEvent(mac, it) }
             }
             store.recordHeartbeat(System.currentTimeMillis())
+            postNotification()
             handler.postDelayed(this, 5_000L)
         }
     }
@@ -235,7 +253,7 @@ class ProximityService : Service() {
         }
 
     companion object {
-        private const val CHANNEL = "proximity"
-        private const val NOTIF_ID = 4242
+        // After this much silence, the persistent notification reads "No device detected".
+        private const val NO_DEVICE_AFTER_MS = 15_000L
     }
 }

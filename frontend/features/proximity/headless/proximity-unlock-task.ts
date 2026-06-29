@@ -33,23 +33,27 @@ async function resolveBleDevice(mac: string) {
     });
 }
 
-export async function proximityUnlockTask(data: { mac: string }): Promise<void> {
+type ProximityAction = 'unlock' | 'lock';
+
+export async function proximityUnlockTask(data: { mac: string; action?: ProximityAction }): Promise<void> {
     const { mac } = data;
+    const action: ProximityAction = data.action === 'lock' ? 'lock' : 'unlock';
+    const target = action === 'lock' ? LockState.Locked : LockState.Unlocked;
     let device: RemoteUnlockDevice | null = null;
     try {
         const raw = await resolveBleDevice(mac);
         if (!raw) {
             // eslint-disable-next-line no-console
-            console.warn('[proximity] device not found for unlock', mac);
+            console.warn(`[proximity] device not found for ${action}`, mac);
             return;
         }
         device = new RemoteUnlockDevice(raw);
         const ok = await device.connect();
         if (!ok) return;
-        await device.doors.setState(LockState.Unlocked);
+        await device.doors.setState(target);
     } catch (err) {
         // eslint-disable-next-line no-console
-        console.warn('[proximity] unlock task failed', err);
+        console.warn(`[proximity] ${action} task failed`, err);
     } finally {
         try {
             if (device?.connected) await device.disconnect();
