@@ -9,9 +9,10 @@ export type RootStackParamList = {
     'MainNavigator': undefined,
     'Device Settings': { id: DeviceId },
     'Bluetooth Device Pairing': undefined,
+    'Proximity Settings': { mac: string },
 };
 
-export type RootNavigationScreenProps = NativeStackScreenProps<RootStackParamList, 'MainNavigator' | 'Device Settings' | 'Bluetooth Device Pairing'>;
+export type RootNavigationScreenProps = NativeStackScreenProps<RootStackParamList, 'MainNavigator' | 'Device Settings' | 'Bluetooth Device Pairing' | 'Proximity Settings'>;
 
 export type BottomTabParamList = {
     'My Vehicles': undefined,

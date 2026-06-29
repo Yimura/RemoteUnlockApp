@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card } from '../../components/core/Card';
 import { Color } from '../../theme/Color';
 import { Description, Title } from '../../components/text';
 import { Button } from '../../components/core/Button';
-import { SettingItem } from '../../components/settings/SettingItem';
-import { Slider } from '../../components/core/Slider';
 import { useDeviceStore } from '../../stores/deviceStore';
 import { RemoveDevice } from './components';
 import { DeviceConnectionToggle } from '@/components/device';
 import { useSaveDeviceName } from './hooks';
+import { useRootNavigation } from '@/hooks';
 
 interface DeviceSettingsPageRoute {
     route: {
@@ -24,9 +23,9 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
     const device = get(route.params.id)!;
 
     const [deviceName, setDeviceName] = useState(device?.ble.localName || 'Unknown');
-    const [proximityThreshold, setProximityThreshold] = useState(5);
 
     const { save } = useSaveDeviceName(device);
+    const nav = useRootNavigation();
 
     const onSave = () => {
         save(deviceName);
@@ -46,21 +45,9 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
                     <Text>Device Name</Text>
                     <TextInput style={styles.input} onChangeText={setDeviceName} value={deviceName} />
                 </View>
-                <View>
-                    <SettingItem label="Automatic Lock/Unlock" description="Automatically lock/unlock based on proximity." value={true} />
-                </View>
-                <View>
-                    <Text>Proximity Threshold ({proximityThreshold}m)</Text>
-                    <Slider
-                        minimumValue={1}
-                        maximumValue={9}
-                        step={1}
-
-                        onValueChange={([value]) => setProximityThreshold(value)}
-                        value={proximityThreshold}
-                    />
-                    <Description>The vehicle will unlock when you are closer than this distance and lock when you move further away.</Description>
-                </View>
+                <Pressable onPress={() => nav.navigate('Proximity Settings', { mac: device.ble.id })}>
+                    <Text>Auto unlock / lock</Text>
+                </Pressable>
                 <Button style={({ pressed }) => pressed ? styles.saveBtnPressed : styles.saveBtn} onPress={onSave}>
                     <Text style={styles.saveTxt}>Save Changes</Text>
                 </Button>
