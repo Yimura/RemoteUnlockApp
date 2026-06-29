@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108">
-  <circle cx="54" cy="42" r="14" fill="none" stroke="#000000" stroke-width="8"/>
-  <line x1="54" y1="56" x2="54" y2="82" stroke="#000000" stroke-width="8" stroke-linecap="round"/>
-  <line x1="54" y1="72" x2="62" y2="72" stroke="#000000" stroke-width="6" stroke-linecap="round"/>
-  <line x1="54" y1="78" x2="60" y2="78" stroke="#000000" stroke-width="6" stroke-linecap="round"/>
-  <path d="M 72 30 A 8 8 0 0 1 78 38" fill="none" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
-  <path d="M 76 24 A 14 14 0 0 1 84 38" fill="none" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
-  <path d="M 80 18 A 20 20 0 0 1 90 38" fill="none" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 50 36 A 10 10 0 1 1 50 56 A 10 10 0 1 1 50 36 Z" fill="none" stroke="#000000" stroke-width="6"/>
+  <path d="M 50 56 L 50 76" stroke="#000000" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <path d="M 50 68 L 56 68" stroke="#000000" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M 50 73 L 54 73" stroke="#000000" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M 58 37 A 5 5 0 0 1 63 42" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 58 33 A 9 9 0 0 1 67 42" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 58 29 A 13 13 0 0 1 71 42" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round"/>
 </svg>
