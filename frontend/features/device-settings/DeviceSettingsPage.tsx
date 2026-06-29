@@ -9,6 +9,7 @@ import { Slider } from '../../components/core/Slider';
 import { useDeviceStore } from '../../stores/deviceStore';
 import { RemoveDevice } from './components';
 import { DeviceConnectionToggle } from '@/components/device';
+import { useSaveDeviceName } from './hooks';
 
 interface DeviceSettingsPageRoute {
     route: {
@@ -25,14 +26,10 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
     const [deviceName, setDeviceName] = useState(device?.ble.localName || 'Unknown');
     const [proximityThreshold, setProximityThreshold] = useState(5);
 
-    const updateDevice = async () => {
-        if (device) {
-            try {
-                await device.settings.setName(deviceName);
-            } catch (error) {
-                console.error(error);
-            }
-        }
+    const { save } = useSaveDeviceName(device);
+
+    const onSave = () => {
+        save(deviceName);
     };
 
     return (
@@ -64,7 +61,7 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
                     />
                     <Description>The vehicle will unlock when you are closer than this distance and lock when you move further away.</Description>
                 </View>
-                <Button style={({ pressed }) => pressed ? styles.saveBtnPressed : styles.saveBtn} onPress={updateDevice}>
+                <Button style={({ pressed }) => pressed ? styles.saveBtnPressed : styles.saveBtn} onPress={onSave}>
                     <Text style={styles.saveTxt}>Save Changes</Text>
                 </Button>
             </Card>
