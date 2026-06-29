@@ -1,5 +1,5 @@
 import { Linking } from 'react-native';
-import { BleManager, LogLevel, State } from 'react-native-ble-plx';
+import { BleError, BleManager, Device, LogLevel, ScanOptions, State, UUID } from 'react-native-ble-plx';
 
 class BLEServiceInstance extends BleManager {
     constructor() {
@@ -19,6 +19,17 @@ class BLEServiceInstance extends BleManager {
             return false;
         }
         return true;
+    }
+
+    // Peripheral uses BLE5 extended advertisements; legacyScan must be false
+    // or the device is invisible to the scanner. Default it here so every
+    // caller is safe without remembering the option.
+    startDeviceScan(
+        UUIDs: UUID[] | null,
+        options: ScanOptions | null,
+        listener: (error: BleError | null, scannedDevice: Device | null) => void,
+    ): Promise<void> {
+        return super.startDeviceScan(UUIDs, { legacyScan: false, ...(options ?? {}) }, listener);
     }
 }
 
