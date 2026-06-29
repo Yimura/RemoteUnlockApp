@@ -7,3 +7,7 @@ const timeAgo = new TimeAgo('en-US');
 export function GetTimeAgo(date: Date): string {
     return timeAgo.format(date, 'round-minute');
 }
+
+export function GetTimeAgoShort(date: Date): string {
+    return timeAgo.format(date, 'twitter');
+}

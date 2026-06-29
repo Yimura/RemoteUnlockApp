@@ -25,7 +25,7 @@ import { useRootNavigation } from '@/hooks';
 import { ProximityModule } from '@/features/proximity';
 import { Color } from '@/theme/Color';
 import { BorderColor, SmallTextColor, TextColor } from '@/theme/Theme';
-import { GetTimeAgo } from '@/util/Time';
+import { GetTimeAgoShort } from '@/util/Time';
 
 export interface DeviceCardProps {
     device: RemoteUnlockDevice;
@@ -67,10 +67,8 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
                     <Car size={22} color={Color.Blue} />
                 </View>
                 <View style={styles.headerText}>
-                    <Title>{device.ble.localName || 'Unknown'}</Title>
-                    <Description>
-                        {device.lastConnected ? `Last seen ${GetTimeAgo(device.lastConnected)}` : 'Never connected'}
-                    </Description>
+                    <Title numberOfLines={1}>{device.ble.localName || 'Unknown'}</Title>
+                    <Description numberOfLines={1}>BLE remote unlock</Description>
                 </View>
                 <View style={[styles.lockPill, { backgroundColor: lockPill.bg, borderColor: lockPill.fg }]}>
                     <Text style={[styles.lockPillTxt, { color: lockPill.fg }]}>{lockPill.label}</Text>
@@ -80,19 +78,26 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
             <View style={styles.statusGrid}>
                 <View style={styles.statusCell}>
                     {device.connected
-                        ? <Wifi size={14} color={Color.Green} />
-                        : <WifiOff size={14} color={Color.Grey} />}
-                    <Text style={styles.statusLabel}>{device.connected ? 'Connected' : 'Disconnected'}</Text>
-                </View>
-                <View style={styles.statusCell}>
-                    {battery.icon}
-                    <Text style={[styles.statusLabel, { color: battery.color }]}>{battery.label}</Text>
-                </View>
-                <View style={styles.statusCell}>
-                    <Clock4 size={14} color={SmallTextColor} />
-                    <Text style={styles.statusLabel}>
-                        {device.lastConnected ? GetTimeAgo(device.lastConnected) : 'unknown'}
+                        ? <Wifi size={16} color={Color.Green} />
+                        : <WifiOff size={16} color={Color.Grey} />}
+                    <Text style={styles.statusValue} numberOfLines={1}>
+                        {device.connected ? 'Online' : 'Offline'}
                     </Text>
+                    <Text style={styles.statusSub} numberOfLines={1}>Connection</Text>
+                </View>
+                <View style={styles.statusCell}>
+                    {React.cloneElement(battery.icon, { size: 16 })}
+                    <Text style={[styles.statusValue, { color: battery.color }]} numberOfLines={1}>
+                        {battery.label}
+                    </Text>
+                    <Text style={styles.statusSub} numberOfLines={1}>Battery</Text>
+                </View>
+                <View style={styles.statusCell}>
+                    <Clock4 size={16} color={SmallTextColor} />
+                    <Text style={styles.statusValue} numberOfLines={1}>
+                        {device.lastConnected ? GetTimeAgoShort(device.lastConnected) : '—'}
+                    </Text>
+                    <Text style={styles.statusSub} numberOfLines={1}>Last seen</Text>
                 </View>
             </View>
 
@@ -105,8 +110,8 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
                             styles.unlockBtn,
                             pressed && device.locked !== LockState.Unlocked ? styles.unlockBtnPressed : null,
                         ])}>
-                        <Unlock size={16} color={Color.White} />
-                        <Text style={styles.unlockBtnTxt}>Unlock</Text>
+                        <Unlock size={18} color={Color.White} />
+                        <Text style={styles.actionBtnTxt}>Unlock</Text>
                     </Button>
                     <Button
                         onPress={lock}
@@ -115,8 +120,8 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
                             styles.lockBtn,
                             pressed && device.locked !== LockState.Locked ? styles.lockBtnPressed : null,
                         ])}>
-                        <Lock size={16} color={TextColor} />
-                        <Text style={styles.lockBtnTxt}>Lock</Text>
+                        <Lock size={18} color={Color.White} />
+                        <Text style={styles.actionBtnTxt}>Lock</Text>
                     </Button>
                 </View>
             ) : (
@@ -124,14 +129,14 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
                     onPress={toggleConnection}
                     disabled={isConnecting}
                     style={({ pressed }) => StyleSheet.flatten([
-                        styles.unlockBtn,
-                        pressed && !isConnecting ? styles.unlockBtnPressed : null,
+                        styles.connectBtn,
+                        pressed && !isConnecting ? styles.connectBtnPressed : null,
                     ])}>
                     {isConnecting
                         ? <ActivityIndicator size={18} color={Color.White} />
                         : <>
                             <Plug size={16} color={Color.White} />
-                            <Text style={styles.unlockBtnTxt}>Connect</Text>
+                            <Text style={styles.actionBtnTxt}>Connect</Text>
                         </>}
                 </Button>
             )}
@@ -150,10 +155,12 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
     );
 }
 
+const ORANGE_TINT = 'rgba(217, 119, 6, 0.12)';
+
 function lockPillView(state: LockState) {
     switch (state) {
         case LockState.Locked:   return { label: 'Locked',   fg: Color.Blue,   bg: Color.WashedBlue };
-        case LockState.Unlocked: return { label: 'Unlocked', fg: Color.Orange, bg: Color.FadedGreen };
+        case LockState.Unlocked: return { label: 'Unlocked', fg: Color.Orange, bg: ORANGE_TINT };
         default:                 return { label: 'Unknown',  fg: Color.Grey,   bg: Color.BrokenWhite };
     }
 }
@@ -216,21 +223,25 @@ const styles = StyleSheet.create({
     },
     statusCell: {
         flex: 1,
-        flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        paddingVertical: 8,
-        paddingHorizontal: 10,
+        gap: 4,
+        paddingVertical: 10,
+        paddingHorizontal: 8,
         borderRadius: 8,
         borderWidth: 1,
         borderColor: BorderColor,
         backgroundColor: Color.OffWhite,
     },
-    statusLabel: {
+    statusValue: {
         color: TextColor,
-        fontSize: 12,
-        fontWeight: '500',
-        flexShrink: 1,
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    statusSub: {
+        color: SmallTextColor,
+        fontSize: 10,
+        textTransform: 'uppercase',
+        letterSpacing: 0.4,
     },
     actionRow: {
         flexDirection: 'row',
@@ -238,28 +249,37 @@ const styles = StyleSheet.create({
     },
     unlockBtn: {
         flex: 1,
-        backgroundColor: Color.Blue,
-        borderColor: Color.Blue,
+        backgroundColor: Color.Orange,
+        borderColor: Color.Orange,
+        paddingVertical: 12,
     },
     unlockBtnPressed: {
-        backgroundColor: Color.OffBlue,
-        borderColor: Color.OffBlue,
-    },
-    unlockBtnTxt: {
-        color: Color.White,
-        fontWeight: '600',
+        backgroundColor: 'rgb(184, 100, 6)',
+        borderColor: 'rgb(184, 100, 6)',
     },
     lockBtn: {
         flex: 1,
-        backgroundColor: Color.White,
-        borderColor: BorderColor,
+        backgroundColor: Color.Blue,
+        borderColor: Color.Blue,
+        paddingVertical: 12,
     },
     lockBtnPressed: {
-        backgroundColor: Color.OffWhite,
+        backgroundColor: Color.OffBlue,
+        borderColor: Color.OffBlue,
     },
-    lockBtnTxt: {
-        color: TextColor,
-        fontWeight: '600',
+    connectBtn: {
+        backgroundColor: Color.Blue,
+        borderColor: Color.Blue,
+        paddingVertical: 12,
+    },
+    connectBtnPressed: {
+        backgroundColor: Color.OffBlue,
+        borderColor: Color.OffBlue,
+    },
+    actionBtnTxt: {
+        color: Color.White,
+        fontWeight: '700',
+        fontSize: 15,
     },
     settingsRow: {
         flexDirection: 'row',
