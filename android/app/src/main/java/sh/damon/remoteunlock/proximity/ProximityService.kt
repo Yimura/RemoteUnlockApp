@@ -82,9 +82,10 @@ class ProximityService : Service() {
     }
 
     private fun onScan(mac: String, rssi: Int, t: Long) {
-        if (!store.get(mac).enabled) return
-        val engine = engines.getOrPut(mac) { ProximityEngine(store.get(mac)) }
-        engine.updateConfig(store.get(mac))
+        val cfg = store.get(mac)
+        if (!cfg.enabled) return
+        val engine = engines.getOrPut(mac) { ProximityEngine(cfg) }
+        engine.updateConfig(cfg)
         engine.push(rssi, t)?.let { dispatcher.onEvent(mac, it) }
     }
 
