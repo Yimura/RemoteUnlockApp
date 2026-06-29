@@ -3,8 +3,8 @@ import { AppState } from 'react-native';
 
 export const useOnForegroundFocus = (
     onFocus: () => void,
-    runOnStartup: boolean | undefined = false
-) => {
+    runOnStartup: boolean = false
+): void => {
     const appState = useRef(AppState.currentState);
 
     useEffect(() => {
@@ -26,6 +26,7 @@ export const useOnForegroundFocus = (
         return () => {
             subscription?.remove();
         };
+        // effect installs an AppState listener once; onFocus changes are intentionally not tracked.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 };

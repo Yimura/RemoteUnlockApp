@@ -5,7 +5,7 @@ import { Settings } from 'lucide-react-native';
 import { Card } from '@/components/core/Card';
 import { Description, Title } from '@/components/text';
 import { BatteryIndicator, ConnectionIndicator, LastSeenIndicator, LockIndicator } from './indicators';
-import { useRootNavigation } from '@/hooks/Navigation';
+import { useRootNavigation } from '@/hooks';
 import { RemoteUnlockDevice } from '@/ble/RemoteUnlockDevice';
 import { DeviceConnectionToggle } from '@/components/device/DeviceConnectionToggle';
 import { DeviceLockButton } from '@/components/device/DeviceLockButton';

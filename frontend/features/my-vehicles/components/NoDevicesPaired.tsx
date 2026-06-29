@@ -1,6 +1,6 @@
 import { Button } from '@/components/core/Button';
 import { Title } from '@/components/text';
-import { useRootNavigation } from '@/hooks/Navigation';
+import { useRootNavigation } from '@/hooks';
 import { Color } from '@/theme/Color';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
