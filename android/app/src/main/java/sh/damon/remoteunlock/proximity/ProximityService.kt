@@ -24,10 +24,14 @@ class ProximityService : Service() {
     private lateinit var store: ProximityConfigStore
     private lateinit var dispatcher: Dispatcher
     private lateinit var scanner: ProximityScanner
-    private lateinit var motionGate: MotionGate
+    private var motionGate: MotionGate? = null
     private val engines = mutableMapOf<String, ProximityEngine>()
     private val handler = Handler(Looper.getMainLooper())
     @Volatile private var scannerMode: ProximityScanner.Mode = ProximityScanner.Mode.LOW_POWER
+
+    // Flip to true once MotionGate is reliable. While false, the scanner runs
+    // unconditionally regardless of detected activity.
+    private val motionGateEnabled = false
 
     override fun onCreate() {
         super.onCreate()
@@ -60,16 +64,19 @@ class ProximityService : Service() {
         scanner = ProximityScanner(buildScannerSource())
         scanner.setListener { mac, rssi, t -> onScan(mac, rssi, t) }
 
-        motionGate = MotionGate(ActivityRecognitionSourceImpl(applicationContext))
-        motionGate.subscribe { state ->
-            if (state == MotionGate.MotionState.MOVING) {
-                scanner.start(scannerMode)
-            } else {
-                scanner.stop()
+        if (motionGateEnabled) {
+            val gate = MotionGate(ActivityRecognitionSourceImpl(applicationContext))
+            gate.subscribe { state ->
+                if (state == MotionGate.MotionState.MOVING) {
+                    scanner.start(scannerMode)
+                } else {
+                    scanner.stop()
+                }
             }
-        }
-        if (!hasActivityRecognitionPermission()) {
-            motionGate.onPermissionDenied()
+            if (!hasActivityRecognitionPermission()) {
+                gate.onPermissionDenied()
+            }
+            motionGate = gate
         }
 
         if (!hasRequiredPermissions()) {
@@ -79,6 +86,10 @@ class ProximityService : Service() {
         }
 
         startForegroundInternal()
+        if (!motionGateEnabled) {
+            // No gate: start scanning immediately and let mode escalation drive itself.
+            scanner.start(scannerMode)
+        }
         handler.post(tickRunnable)
     }
 
@@ -90,7 +101,7 @@ class ProximityService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(tickRunnable)
-        motionGate.unsubscribe()
+        motionGate?.unsubscribe()
         scanner.stop()
     }
 
