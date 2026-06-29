@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useOnForegroundFocus } from '@/hooks';
 import { useDeviceStore } from '@/stores/deviceStore';
