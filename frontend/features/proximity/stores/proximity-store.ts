@@ -15,7 +15,8 @@ export const useProximityStore = create<State & Actions>()((set) => ({
     set: (mac, cfg) => set((s) => ({ configs: { ...s.configs, [mac]: cfg } })),
     remove: (mac) =>
         set((s) => {
-            const { [mac]: _, ...rest } = s.configs;
+            const rest = { ...s.configs };
+            delete rest[mac];
             return { configs: rest };
         }),
 }));
