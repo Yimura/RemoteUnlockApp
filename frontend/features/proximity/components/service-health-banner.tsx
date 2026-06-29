@@ -8,13 +8,19 @@ export function ServiceHealthBanner({ anyEnabled }: { anyEnabled: boolean }) {
     const [stale, setStale] = useState(false);
 
     useEffect(() => {
+        if (!anyEnabled) {
+            setStale(false);
+            return;
+        }
         let cancelled = false;
-        (async () => {
+        const check = async () => {
             const hb = await ProximityModule.heartbeatAt();
             if (cancelled) return;
-            if (anyEnabled && hb > 0 && Date.now() - hb > STALE_MS) setStale(true);
-        })();
-        return () => { cancelled = true; };
+            setStale(hb > 0 && Date.now() - hb > STALE_MS);
+        };
+        check();
+        const interval = setInterval(check, 60_000);
+        return () => { cancelled = true; clearInterval(interval); };
     }, [anyEnabled]);
 
     if (!stale) return null;

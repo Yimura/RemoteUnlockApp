@@ -5,13 +5,18 @@ jest.mock('react-native/Libraries/Linking/Linking', () => ({
   sendIntent: jest.fn(),
 }));
 
-import { render, waitFor } from '@testing-library/react-native';
+import { render, waitFor, cleanup } from '@testing-library/react-native';
 import { ServiceHealthBanner } from '@/features/proximity/components/service-health-banner';
+
+beforeEach(() => {
+  const { ProximityModule } = jest.requireMock('@/features/proximity/services/proximity-module');
+  ProximityModule.heartbeatAt.mockReset();
+});
+
+afterEach(() => { cleanup(); });
 
 describe('ServiceHealthBanner', () => {
   it('renders nothing when not enabled', async () => {
-    const { ProximityModule } = jest.requireMock('@/features/proximity/services/proximity-module');
-    ProximityModule.heartbeatAt.mockResolvedValueOnce(0);
     const { queryByText } = render(<ServiceHealthBanner anyEnabled={false} />);
     expect(queryByText(/paused/i)).toBeNull();
   });
