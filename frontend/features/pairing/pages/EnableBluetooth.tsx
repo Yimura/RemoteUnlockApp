@@ -1,11 +1,11 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { PairContainer } from '../components/PairContainer';
 import { Bluetooth, Power } from 'lucide-react-native';
 import { IconButton } from '@/components/core/IconButton';
 import { BLEService } from '@/services/BLEService';
 import { State } from 'react-native-ble-plx';
-import { useOnForegroundFocus } from '@/hooks/OnFocus';
-import { PaginatorContext } from '../components/paginator';
+import { useOnForegroundFocus } from '@/hooks';
+import { usePaginator } from '../components/paginator';
 import { ForcedLoader } from '../components/ForcedLoader';
 
 const isBluetoothEnabled = async () => {
@@ -14,7 +14,7 @@ const isBluetoothEnabled = async () => {
 };
 
 export function EnableBluetooth(): React.JSX.Element {
-    const { currentPage, setPage, isNextEnabled, setNextEnabled, setNextButtonLabel } = useContext(PaginatorContext);
+    const { currentPage, setPage, isNextEnabled, setNextEnabled, setNextButtonLabel } = usePaginator();
 
     useEffect(() => {
         setNextButtonLabel('Continue');
@@ -23,8 +23,7 @@ export function EnableBluetooth(): React.JSX.Element {
             setNextEnabled(true);
             setNextButtonLabel(null);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [setNextButtonLabel, setNextEnabled]);
 
     const goToNextPage = (evaluated: boolean) => {
         if (evaluated) {

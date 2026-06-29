@@ -1,15 +1,14 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Bluetooth } from 'lucide-react-native';
 import { PairContainer } from '../components/PairContainer';
-import { PaginatorContext } from '../components/paginator';
+import { usePaginator } from '../components/paginator';
 
 export function Welcome(): React.JSX.Element {
-    const { setNextEnabled } = useContext(PaginatorContext);
+    const { setNextEnabled } = usePaginator();
 
     useEffect(() => {
         setNextEnabled(true);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [setNextEnabled]);
 
     return (
         <PairContainer>

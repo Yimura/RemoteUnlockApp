@@ -1,12 +1,12 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { PairContainer } from '../components/PairContainer';
 import { Check } from 'lucide-react-native';
 import { Color } from '@/theme/Color';
-import { PaginatorContext } from '../components/paginator';
+import { usePaginator } from '../components/paginator';
 
 
 export function ConnectionComplete(): React.JSX.Element {
-    const { setNextButtonLabel } = useContext(PaginatorContext);
+    const { setNextButtonLabel } = usePaginator();
 
     useEffect(() => {
         setNextButtonLabel('Finish');
@@ -14,8 +14,7 @@ export function ConnectionComplete(): React.JSX.Element {
         return () => {
             setNextButtonLabel(null);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [setNextButtonLabel]);
 
     return (
         <PairContainer>

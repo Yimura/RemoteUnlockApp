@@ -1,5 +1,5 @@
 import { Check, Search } from 'lucide-react-native';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { PairContainer } from '../components/PairContainer';
 import { Card } from '@/components/core/Card';
 import { StyleSheet, Text, View } from 'react-native';
@@ -8,13 +8,13 @@ import { Description } from '@/components/text';
 import { Button } from '@/components/core/Button';
 import { Color } from '@/theme/Color';
 import { useNavigation } from '@react-navigation/native';
-import { PaginatorContext } from '../components/paginator';
+import { usePaginator } from '../components/paginator';
 import { hasBluetoothPermissions, requestBluetoothPermissions } from '@/util/Bluetooth';
 import { ForcedLoader } from '../components/ForcedLoader';
 
 export function BluetoothPermission(): React.JSX.Element {
     const navigation = useNavigation();
-    const { currentPage, setPage, setNextEnabled, setNextButtonLabel } = useContext(PaginatorContext);
+    const { currentPage, setPage, setNextEnabled, setNextButtonLabel } = usePaginator();
 
     useEffect(() => {
         setNextButtonLabel('Continue');
@@ -24,8 +24,7 @@ export function BluetoothPermission(): React.JSX.Element {
             setNextButtonLabel(null);
             setNextEnabled(true);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [setNextButtonLabel, setNextEnabled]);
 
     const goToNextPage = (evaluated: boolean) => {
         if (evaluated) {

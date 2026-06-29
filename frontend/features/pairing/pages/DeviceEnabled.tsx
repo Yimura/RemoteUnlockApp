@@ -1,10 +1,10 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { PairContainer } from '../components/PairContainer';
 import { Bluetooth } from 'lucide-react-native';
-import { PaginatorContext } from '../components/paginator';
+import { usePaginator } from '../components/paginator';
 
 export function DeviceEnabled(): React.JSX.Element {
-    const { setNextButtonLabel } = useContext(PaginatorContext);
+    const { setNextButtonLabel } = usePaginator();
 
     useEffect(() => {
         setNextButtonLabel('Scan for devices');
@@ -12,8 +12,7 @@ export function DeviceEnabled(): React.JSX.Element {
         return () => {
             setNextButtonLabel(null);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [setNextButtonLabel]);
 
     return (
         <PairContainer>

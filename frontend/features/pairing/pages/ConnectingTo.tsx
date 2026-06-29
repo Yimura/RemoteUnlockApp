@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PairContainer } from '../components/PairContainer';
 import { RadioReceiver } from 'lucide-react-native';
 import { LoadingButton } from '@/components/core/LoadingButton';
 import { usePairDeviceStore } from '../stores/pairDeviceStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { RemoteUnlockDevice } from '@/ble/RemoteUnlockDevice';
-import { PaginatorContext } from '../components/paginator';
+import { usePaginator } from '../components/paginator';
 
 export function ConnectingTo(): React.JSX.Element {
-    const { setNextEnabled, setNextButtonLabel } = useContext(PaginatorContext);
+    const { setNextEnabled, setNextButtonLabel } = usePaginator();
     const { selectedDevice } = usePairDeviceStore();
     const { add } = useDeviceStore();
     const [connecting, setConnecting] = useState(false);
@@ -22,8 +22,7 @@ export function ConnectingTo(): React.JSX.Element {
             setNextEnabled(true);
             setNextButtonLabel(null);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [setNextEnabled, setNextButtonLabel]);
 
     const pairDevice = async () => {
         if (selectedDevice) {

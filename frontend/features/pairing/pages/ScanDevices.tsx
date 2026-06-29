@@ -1,65 +1,22 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { PairContainer } from '../components/PairContainer';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { ProgressBar } from '@/components/core/ProgressBar';
 import { usePairDeviceStore } from '../stores/pairDeviceStore';
 import { ScannedDevice } from '../components/ScannedDevice';
-import { BLEService } from '@/services/BLEService';
 import { Device } from 'react-native-ble-plx';
-import { PaginatorContext } from '../components/paginator';
+import { usePaginator } from '../components/paginator';
 import { IconButton } from '@/components/core/IconButton';
 import { RefreshCcw } from 'lucide-react-native';
-
-const SCAN_PERIOD = 3e4;
-const SCAN_PROGRESS_DEFINITION = 50;
+import { useBleDeviceScan } from '../hooks';
 
 export function ScanDevices(): React.JSX.Element {
     const { selectedDevice, selectDevice } = usePairDeviceStore();
+    const { devices, progress, scanning, rescan } = useBleDeviceScan({
+        serviceUUID: '7ccf30e3-a9af-45b2-8d1d-f58e4d30ff95',
+    });
 
-    const [scanning, setScanning] = useState(true);
-    const [progress, setProgress] = useState(0);
-    const [devices, setDevices] = useState(new Map<Device['id'], Device>());
-
-    useEffect(() => {
-        if (scanning) {
-            setProgress(0);
-            BLEService.stopDeviceScan().then(() => {
-                BLEService.startDeviceScan(['7ccf30e3-a9af-45b2-8d1d-f58e4d30ff95'], null, async (err, device) => {
-                    if (err || !device) {
-                        console.error(err);
-                        return;
-                    }
-
-                    setDevices((prevDevices) => new Map(prevDevices.set(device.id, device)));
-                });
-            });
-
-            BLEService.connectedDevices(['7ccf30e3-a9af-45b2-8d1d-f58e4d30ff95'])
-                .then(connectedDevices =>
-                    connectedDevices.map(device =>
-                        setDevices(prevDevices => new Map(prevDevices.set(device.id, device)))
-                    )
-                );
-
-            const interval = setInterval(() => {
-                setProgress(prev => {
-                    if (prev >= 1.0) {
-                        clearInterval(interval);
-                        setScanning(false);
-
-                        return 1.0;
-                    }
-                    return prev + SCAN_PROGRESS_DEFINITION / SCAN_PERIOD;
-                });
-            }, SCAN_PROGRESS_DEFINITION);
-
-            return () => {
-                BLEService.stopDeviceScan();
-            };
-        }
-    }, [scanning]);
-
-    const { setNextEnabled, setNextButtonLabel } = useContext(PaginatorContext);
+    const { setNextEnabled, setNextButtonLabel } = usePaginator();
     useEffect(() => {
         setNextEnabled(false);
         setNextButtonLabel('Connect');
@@ -68,8 +25,7 @@ export function ScanDevices(): React.JSX.Element {
             setNextEnabled(true);
             setNextButtonLabel(null);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [setNextEnabled, setNextButtonLabel]);
 
     const setSelectDevice = (device: Device) => {
         selectDevice(device);
@@ -87,7 +43,7 @@ export function ScanDevices(): React.JSX.Element {
                     {scanning && <ProgressBar progress={progress} />}
                 </View>
 
-                <FlatList ListEmptyComponent={!scanning ? <IconButton label={'Retry'} icon={<RefreshCcw />} onPress={() => setScanning(true)} /> : null} data={[...devices.values()]} keyExtractor={(item) => item.id} renderItem={({ item, index }) =>
+                <FlatList ListEmptyComponent={!scanning ? <IconButton label={'Retry'} icon={<RefreshCcw />} onPress={rescan} /> : null} data={[...devices.values()]} keyExtractor={(item) => item.id} renderItem={({ item, index }) =>
                     <ScannedDevice
                         key={index}
                         deviceName={item.localName || 'Unknown'}

@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { PaginatorHeader } from './Header';
 import { PaginatorBody } from './Body';
 import { PageUpdateEventHandler, PaginatorFooter } from './Footer';
@@ -13,19 +13,16 @@ interface PaginatorContextProps {
     isNextEnabled: boolean;
     setNextEnabled: (toggle: boolean) => void;
 }
-const defaultProviderContext: PaginatorContextProps = {
-    currentPage: 1,
-    setPage: () => { },
 
-    setPreviousButtonLabel: () => { },
-    setNextButtonLabel: () => { },
+const PaginatorContext = createContext<PaginatorContextProps | null>(null);
 
-    isNextEnabled: true,
-    setNextEnabled: () => { },
-} as const;
-
-export const PaginatorContext = createContext<PaginatorContextProps>(defaultProviderContext);
-
+export const usePaginator = (): PaginatorContextProps => {
+    const ctx = useContext(PaginatorContext);
+    if (!ctx) {
+        throw new Error('usePaginator must be used inside <Paginator>');
+    }
+    return ctx;
+};
 
 export interface PaginatorProps {
     currentPage: number;
@@ -36,7 +33,7 @@ export interface PaginatorProps {
     children: React.ReactNode[];
 }
 export function Paginator({ currentPage, setPage, onPageUpdate, children }: PaginatorProps): React.JSX.Element {
-    const [isNextEnabled, setNextEnabled] = useState(defaultProviderContext.isNextEnabled);
+    const [isNextEnabled, setNextEnabled] = useState(true);
     const [previousButtonLabel, setPreviousButtonLabel] = useState<string | null>(null);
     const [nextButtonLabel, setNextButtonLabel] = useState<string | null>(null);
 
