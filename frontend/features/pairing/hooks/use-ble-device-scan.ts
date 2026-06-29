@@ -31,7 +31,7 @@ export const useBleDeviceScan = ({
 
         setProgress(0);
         BLEService.stopDeviceScan().then(() => {
-            BLEService.startDeviceScan([serviceUUID], null, (err, device) => {
+            BLEService.startDeviceScan([serviceUUID], { legacyScan: false }, (err, device) => {
                 if (err || !device) {
                     console.error(err);
                     return;

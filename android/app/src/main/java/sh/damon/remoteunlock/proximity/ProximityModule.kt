@@ -85,6 +85,7 @@ class ProximityModule(reactCtx: ReactApplicationContext) : ReactContextBaseJavaM
         val filter = ScanFilter.Builder().setDeviceAddress(mac).build()
         val settings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .setLegacy(false)
             .build()
         try {
             scanner.startScan(listOf(filter), settings, cb)

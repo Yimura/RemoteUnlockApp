@@ -112,6 +112,7 @@ class ProximityService : Service() {
                 val settings = ScanSettings.Builder()
                     .setScanMode(if (mode == ProximityScanner.SCAN_MODE_LOW_LATENCY)
                         ScanSettings.SCAN_MODE_LOW_LATENCY else ScanSettings.SCAN_MODE_LOW_POWER)
+                    .setLegacy(false)
                     .build()
                 cb = object : ScanCallback() {
                     override fun onScanResult(callbackType: Int, result: ScanResult) {
