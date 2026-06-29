@@ -13,7 +13,7 @@ describe('CalibrationModal', () => {
     const { getByText } = render(
       <CalibrationModal mac="AA" kind="enter" onClose={() => {}} onSave={onSave} />
     );
-    fireEvent.press(getByText('Start'));
+    fireEvent.press(getByText('Start capture'));
     await waitFor(() => getByText('-67 dBm'));
     fireEvent.press(getByText('Save'));
     expect(onSave).toHaveBeenCalledWith(-67);
@@ -25,7 +25,7 @@ describe('CalibrationModal', () => {
     const { getByText } = render(
       <CalibrationModal mac="AA" kind="enter" onClose={() => {}} onSave={() => {}} />
     );
-    fireEvent.press(getByText('Start'));
+    fireEvent.press(getByText('Start capture'));
     await waitFor(() => getByText(/noisy/i));
   });
 });
