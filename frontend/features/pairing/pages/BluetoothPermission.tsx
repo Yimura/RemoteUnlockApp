@@ -70,6 +70,7 @@ export function BluetoothPermission(): React.JSX.Element {
 const styles = StyleSheet.create({
     permissionCard: {
         backgroundColor: Color.OffWhite,
+        gap: 8,
     },
     permissionButtons: {
         flexDirection: 'row',
@@ -81,12 +82,15 @@ const styles = StyleSheet.create({
         backgroundColor: Color.White,
     },
     allowButton: {
-        backgroundColor: Color.Black,
+        backgroundColor: Color.Blue,
+        borderColor: Color.Blue,
     },
     allowButtonPressed: {
-        backgroundColor: Color.OffBlack,
+        backgroundColor: Color.OffBlue,
+        borderColor: Color.OffBlue,
     },
     allowText: {
         color: Color.White,
+        fontWeight: '600',
     },
 });

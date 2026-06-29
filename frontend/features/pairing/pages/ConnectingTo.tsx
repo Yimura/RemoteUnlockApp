@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { PairContainer } from '../components/PairContainer';
 import { RadioReceiver } from 'lucide-react-native';
-import { LoadingButton } from '@/components/core/LoadingButton';
+import { Button } from '@/components/core/Button';
+import { Color } from '@/theme/Color';
 import { usePairDeviceStore } from '../stores/pairDeviceStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { RemoteUnlockDevice } from '@/ble/RemoteUnlockDevice';
@@ -43,7 +45,35 @@ export function ConnectingTo(): React.JSX.Element {
             <PairContainer.Icon IconComponent={RadioReceiver} />
             <PairContainer.SubTitle text={paired && 'Successfully paired!' || `Ready to pair with ${selectedDevice?.localName || 'Unknown'}.`} />
 
-            {!paired && <LoadingButton label="Pair Now" isLoading={connecting} onPress={pairDevice} />}
+            {!paired && (
+                <Button
+                    onPress={pairDevice}
+                    disabled={connecting}
+                    style={({ pressed }) => StyleSheet.flatten([
+                        styles.primary,
+                        pressed && !connecting ? styles.primaryPressed : null,
+                    ])}>
+                    {connecting
+                        ? <ActivityIndicator size={19} color={Color.White} />
+                        : <Text style={styles.primaryTxt}>Pair Now</Text>}
+                </Button>
+            )}
         </PairContainer>
     );
 }
+
+const styles = StyleSheet.create({
+    primary: {
+        backgroundColor: Color.Blue,
+        borderColor: Color.Blue,
+        paddingHorizontal: 16,
+    },
+    primaryPressed: {
+        backgroundColor: Color.OffBlue,
+        borderColor: Color.OffBlue,
+    },
+    primaryTxt: {
+        color: Color.White,
+        fontWeight: '600',
+    },
+});

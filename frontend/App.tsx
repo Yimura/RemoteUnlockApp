@@ -1,9 +1,11 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
+import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DeviceSettingsPage, Navigator, PairDevicePage, RootStackParamList } from './Routes';
 import { ProximitySettingsPage } from '@/features/proximity/pages/proximity-settings-page';
+import { MainBgColor } from '@/theme/Theme';
 
 
 function App(): React.JSX.Element {
@@ -11,6 +13,7 @@ function App(): React.JSX.Element {
 
     return (
         <SafeAreaProvider>
+            <StatusBar barStyle="dark-content" backgroundColor={MainBgColor} />
             <NavigationContainer>
                 <Stack.Navigator screenOptions={(props) => { return { headerShown: props.route.name !== 'MainNavigator' }; }}>
                     <Stack.Screen name="MainNavigator" component={Navigator} />

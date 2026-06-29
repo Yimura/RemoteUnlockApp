@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, ViewProps } from 'react-native';
+import { StyleSheet, View, ViewProps } from 'react-native';
 import { LucideIcon } from 'lucide-react-native';
 import { Color } from '@/theme/Color';
-import { Title } from '@/components/text';
+import { Description, Title } from '@/components/text';
 
 interface PairContainerProps extends ViewProps {
 }
@@ -43,19 +43,24 @@ function PairContainerTitle({ text }: PairContainerTitleProps): React.JSX.Elemen
 
 function PairContainerSubTitle({ text }: PairContainerTitleProps): React.JSX.Element {
     return (
-        <Text style={styles.centerText}>{text}</Text>
+        <Description style={styles.subTitle}>{text}</Description>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        padding: 16,
-        gap: 8,
+        paddingVertical: 8,
+        gap: 12,
         alignItems: 'center',
         width: '100%',
     },
     centerText: {
         textAlign: 'center',
+    },
+    subTitle: {
+        textAlign: 'center',
+        fontSize: 13,
+        lineHeight: 18,
     },
     iconWrapper: {
         padding: 16,

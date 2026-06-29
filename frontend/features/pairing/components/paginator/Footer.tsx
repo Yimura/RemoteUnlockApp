@@ -1,5 +1,6 @@
 import { IconButton } from '@/components/core/IconButton';
 import { Color } from '@/theme/Color';
+import { TextColor } from '@/theme/Theme';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -40,59 +41,63 @@ export function PaginatorFooter({ currentPage, numberOfPages, setPage, previousB
     };
 
     return (
-        <View style={styles.carouselFooter}>
-            <View style={styles.carouselFooterButtons}>
-                {currentPage > 0 &&
-                    <IconButton
-                        label={previousButtonLabel || 'Back'}
-                        icon={<ChevronLeft size={16} />}
-                        onPress={previousPage}
-                    />
-                }
-                {currentPage <= numberOfPages &&
-                    <IconButton
-                        style={styles.nextButton}
-                        textStyle={styles.nextButtonTxt}
-                        label={nextButtonLabel || 'Next'}
-                        icon={<ChevronRight size={16} color={Color.White} />}
-                        right={true}
-                        onPress={nextPage}
-                        disabled={!isNextEnabled}
-                    />
-                }
-            </View>
-            <View style={styles.carouselPageIndicators}>
-                {[...Array(numberOfPages)].map((_, idx) =>
-                    <View key={idx} style={[styles.carouselPageIndicator, { backgroundColor: idx === currentPage - 1 ? Color.Blue : Color.BrokenWhite }]} />
-                )}
-            </View>
+        <View style={styles.footer}>
+            {currentPage > 1 ? (
+                <IconButton
+                    label={previousButtonLabel || 'Back'}
+                    icon={<ChevronLeft size={16} color={TextColor} />}
+                    style={styles.backButton}
+                    onPress={previousPage} />
+            ) : (
+                <View style={styles.backSpacer} />
+            )}
+            {currentPage <= numberOfPages && (
+                <IconButton
+                    style={({ pressed }: { pressed: boolean }) => StyleSheet.flatten([
+                        styles.nextButton,
+                        pressed ? styles.nextButtonPressed : null,
+                        !isNextEnabled ? styles.nextButtonDisabled : null,
+                    ])}
+                    textStyle={styles.nextButtonTxt}
+                    label={nextButtonLabel || 'Next'}
+                    icon={<ChevronRight size={16} color={Color.White} />}
+                    right={true}
+                    onPress={nextPage}
+                    disabled={!isNextEnabled} />
+            )}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    carouselFooter: {
-        gap: 16,
-    },
-    carouselFooterButtons: {
+    footer: {
         flexDirection: 'row',
-        justifyContent: 'center',
-        gap: 16,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 12,
     },
-    carouselPageIndicators: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        gap: 8,
+    backSpacer: {
+        flex: 0,
     },
-    carouselPageIndicator: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
+    backButton: {
+        backgroundColor: 'transparent',
+        flexShrink: 0,
     },
     nextButton: {
-        backgroundColor: Color.Black,
+        backgroundColor: Color.Blue,
+        borderColor: Color.Blue,
+        flex: 1,
+        paddingHorizontal: 16,
+    },
+    nextButtonPressed: {
+        backgroundColor: Color.OffBlue,
+        borderColor: Color.OffBlue,
+    },
+    nextButtonDisabled: {
+        opacity: 0.4,
     },
     nextButtonTxt: {
         color: Color.White,
+        fontWeight: '600',
     },
 });
