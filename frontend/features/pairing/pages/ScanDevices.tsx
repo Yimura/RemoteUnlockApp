@@ -23,18 +23,21 @@ export function ScanDevices(): React.JSX.Element {
 
     const { setNextEnabled, setNextButtonLabel } = usePaginator();
     useEffect(() => {
-        setNextEnabled(false);
         setNextButtonLabel('Connect');
 
         return () => {
-            setNextEnabled(true);
             setNextButtonLabel(null);
         };
-    }, [setNextEnabled, setNextButtonLabel]);
+    }, [setNextButtonLabel]);
+
+    // Reconcile Next-enabled with the persisted selection so re-entering this
+    // page with a device already chosen does not gray out the Connect button.
+    useEffect(() => {
+        setNextEnabled(!!selectedDevice);
+    }, [selectedDevice, setNextEnabled]);
 
     const setSelectDevice = (device: Device) => {
         selectDevice(device);
-        setNextEnabled(true);
     };
 
     const list = [...devices.values()];
