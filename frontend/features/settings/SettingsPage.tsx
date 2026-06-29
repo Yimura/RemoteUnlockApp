@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Bluetooth, BluetoothOff, ChevronRight, Info, ShieldCheck, Zap } from 'lucide-react-native';
+import { Bluetooth, BluetoothOff, ChevronRight, Info, ShieldCheck, Sliders, Zap } from 'lucide-react-native';
 import { State } from 'react-native-ble-plx';
 import { Card } from '@/components/core/Card';
 import { Button } from '@/components/core/Button';
+import { Dropdown } from '@/components/core/Dropdown';
+import { SettingItem } from '@/components/settings/SettingItem';
 import { Description, Title } from '@/components/text';
 import { BLEService } from '@/services/BLEService';
 import { Color } from '@/theme/Color';
@@ -15,9 +17,23 @@ import { useDeviceStore } from '@/stores/deviceStore';
 const APP_VERSION = '0.0.1';
 const STALE_MS = 5 * 60_000;
 
+const SCAN_INTERVAL_OPTIONS = [
+    { label: '1 second (high battery use)', value: 1 },
+    { label: '2 seconds', value: 2 },
+    { label: '3 seconds', value: 3 },
+    { label: '5 seconds (recommended)', value: 5 },
+    { label: '10 seconds', value: 10 },
+    { label: '30 seconds (lowest battery use)', value: 30 },
+];
+
 export function SettingsPage(): React.JSX.Element {
     const [btState, setBtState] = useState<State>(State.Unknown);
     const [heartbeat, setHeartbeat] = useState<number>(0);
+
+    // Preferences (UI stubs — not yet wired to a persistent store).
+    const [runInBackground, setRunInBackground] = useState(true);
+    const [notifications, setNotifications] = useState(false);
+    const [scanInterval, setScanInterval] = useState(5);
 
     const configs = useProximityStore((s) => s.configs);
     const devices = useDeviceStore((s) => s.devices);
@@ -106,6 +122,48 @@ export function SettingsPage(): React.JSX.Element {
                     <Text style={styles.linkTxt}>Open Bluetooth settings</Text>
                     <ChevronRight size={18} color={SmallTextColor} />
                 </Pressable>
+            </Card>
+
+            <Card style={styles.card}>
+                <View style={styles.statusRow}>
+                    <View style={styles.statusIconWrap}>
+                        <Sliders size={20} color={Color.Blue} />
+                    </View>
+                    <View style={styles.rowText}>
+                        <Title>Preferences</Title>
+                        <Description>Global app behaviour that applies to every paired device.</Description>
+                    </View>
+                </View>
+
+                <SettingItem
+                    label="Run in background"
+                    description="Allow the app to keep its proximity service alive when minimised."
+                    value={runInBackground}
+                    onChange={() => setRunInBackground((v) => !v)} />
+
+                <SettingItem
+                    label="Notifications"
+                    description="Get notified when a vehicle locks or unlocks."
+                    value={notifications}
+                    onChange={() => setNotifications((v) => !v)} />
+
+                <View style={styles.divider} />
+
+                <Dropdown
+                    label="Bluetooth scan interval"
+                    helperText="How often to look for nearby devices when auto-lock is enabled."
+                    options={SCAN_INTERVAL_OPTIONS}
+                    onValueChange={(v) => typeof v === 'number' && setScanInterval(v)}
+                    selectedValue={scanInterval} />
+
+                <Button
+                    onPress={() => {/* TODO: persist preferences */}}
+                    style={({ pressed }) => StyleSheet.flatten([
+                        styles.primary,
+                        pressed ? styles.primaryPressed : null,
+                    ])}>
+                    <Text style={styles.primaryTxt}>Save changes</Text>
+                </Button>
             </Card>
 
             <Card style={styles.card}>
@@ -254,5 +312,9 @@ const styles = StyleSheet.create({
         flex: 1,
         color: TextColor,
         fontWeight: '500',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: BorderColor,
     },
 });
