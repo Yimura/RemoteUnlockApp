@@ -15,7 +15,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.ParcelUuid
 import android.os.SystemClock
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import java.util.UUID
 
@@ -35,6 +34,7 @@ class ProximityService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        ProximityLog.i("Service", "onCreate")
         store = ProximityConfigStore(applicationContext)
 
         // elapsedRealtime resets on reboot but persists across OOM-kill restarts.
@@ -46,12 +46,14 @@ class ProximityService : Service() {
         // A real reboot shifts the inferred boot time. Allow ±5s slack for NTP wobble.
         val rebooted = storedBootMs == 0L || kotlin.math.abs(nowBootMs - storedBootMs) > 5_000L
         if (rebooted) {
+            ProximityLog.i("Service", "reboot detected (storedBoot=$storedBootMs nowBoot=$nowBootMs), clearing cooldowns")
             store.knownMacs().forEach { mac ->
                 val c = store.get(mac)
                 if (c.lastManualLockAt != 0L) store.set(mac, c.copy(lastManualLockAt = 0L))
             }
             store.setBootId(nowBootMs.toString())
         }
+        ProximityLog.d("Service", "enabled MACs: ${store.knownMacs().filter { store.get(it).enabled }}")
 
         dispatcher = Dispatcher(store, object : Dispatcher.Sinks {
             override fun postConfirmNotification(mac: String) {
@@ -81,6 +83,7 @@ class ProximityService : Service() {
 
         if (!hasRequiredPermissions()) {
             // Stop self; user must grant perms before service can run.
+            ProximityLog.w("Service", "missing required permissions, stopSelf")
             stopSelf()
             return
         }
@@ -88,18 +91,23 @@ class ProximityService : Service() {
         startForegroundInternal()
         if (!motionGateEnabled) {
             // No gate: start scanning immediately and let mode escalation drive itself.
+            ProximityLog.i("Service", "motion gate disabled, scanner.start($scannerMode)")
             scanner.start(scannerMode)
+        } else {
+            ProximityLog.i("Service", "motion gate enabled, awaiting MOVING transition")
         }
         handler.post(tickRunnable)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        ProximityLog.d("Service", "onStartCommand flags=$flags startId=$startId")
         startForegroundInternal()
         return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        ProximityLog.i("Service", "onDestroy")
         handler.removeCallbacks(tickRunnable)
         motionGate?.unsubscribe()
         scanner.stop()
@@ -131,13 +139,22 @@ class ProximityService : Service() {
 
     private fun onScan(mac: String, rssi: Int, t: Long) {
         val cfg = store.get(mac)
-        if (!cfg.enabled) return
-        val engine = engines.getOrPut(mac) { ProximityEngine(cfg) }
+        if (!cfg.enabled) {
+            ProximityLog.d("Scan", "ignored $mac rssi=$rssi (mode=OFF)")
+            return
+        }
+        val engine = engines.getOrPut(mac) {
+            ProximityLog.i("Engine", "spin-up for $mac (enter=${cfg.enterRssi} exit=${cfg.exitRssi})")
+            ProximityEngine(cfg)
+        }
         engine.updateConfig(cfg)
-        engine.push(rssi, t)?.let { dispatcher.onEvent(mac, it) }
+        val event = engine.push(rssi, t)
+        ProximityLog.d("Scan", "$mac rssi=$rssi state=${engine.state}${event?.let { " event=$it" } ?: ""}")
+        event?.let { dispatcher.onEvent(mac, it) }
 
         val targetMode = decideScannerMode()
         if (targetMode != scannerMode) {
+            ProximityLog.i("Scanner", "mode change ${scannerMode}->$targetMode")
             scannerMode = targetMode
             scanner.start(targetMode)
         }
@@ -200,14 +217,18 @@ class ProximityService : Service() {
                         listener(result.device.address, result.rssi, SystemClock.elapsedRealtime())
                     }
                 }
-                try { ble.startScan(listOf(filter), settings, cb) } catch (e: SecurityException) {
-                    Log.w("ProximityService", "scan permission denied", e)
+                try {
+                    ble.startScan(listOf(filter), settings, cb)
+                    ProximityLog.i("Scanner", "startScan mode=$mode legacy=false")
+                } catch (e: SecurityException) {
+                    ProximityLog.w("Scanner", "scan permission denied", e)
                 }
             }
             override fun stopScan() {
                 val adapter = BluetoothAdapter.getDefaultAdapter() ?: return
                 val ble = adapter.bluetoothLeScanner ?: return
-                try { ble.stopScan(cb) } catch (e: SecurityException) { }
+                try { ble.stopScan(cb) } catch (_: SecurityException) { }
+                ProximityLog.i("Scanner", "stopScan")
                 cb = null
             }
             override fun nowMs() = SystemClock.elapsedRealtime()

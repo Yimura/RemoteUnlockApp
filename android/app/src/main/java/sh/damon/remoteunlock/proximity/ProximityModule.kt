@@ -35,9 +35,12 @@ class ProximityModule(reactCtx: ReactApplicationContext) : ReactContextBaseJavaM
 
     @ReactMethod
     fun setConfig(mac: String, cfg: ReadableMap, p: Promise) {
+        val mode = cfg.getString("mode")!!
+        val enabled = cfg.getBoolean("enabled")
+        ProximityLog.i("Module", "setConfig $mac mode=$mode enabled=$enabled")
         store.set(mac, ProximityConfigStore.ProximityConfig(
-            enabled = cfg.getBoolean("enabled"),
-            mode = ProximityConfigStore.Mode.valueOf(cfg.getString("mode")!!),
+            enabled = enabled,
+            mode = ProximityConfigStore.Mode.valueOf(mode),
             enterRssi = cfg.getInt("enterRssi"),
             exitRssi = cfg.getInt("exitRssi"),
             predictive = cfg.getBoolean("predictive"),
@@ -45,12 +48,19 @@ class ProximityModule(reactCtx: ReactApplicationContext) : ReactContextBaseJavaM
             cooldownMs = cfg.getDouble("cooldownMs").toLong(),
             lastManualLockAt = cfg.getDouble("lastManualLockAt").toLong(),
         ))
-        if (store.anyEnabled()) ProximityServiceManager.start(ctx) else ProximityServiceManager.stop(ctx)
+        if (store.anyEnabled()) {
+            ProximityLog.i("Module", "anyEnabled=true -> ProximityServiceManager.start")
+            ProximityServiceManager.start(ctx)
+        } else {
+            ProximityLog.i("Module", "anyEnabled=false -> ProximityServiceManager.stop")
+            ProximityServiceManager.stop(ctx)
+        }
         p.resolve(null)
     }
 
     @ReactMethod
     fun removeConfig(mac: String, p: Promise) {
+        ProximityLog.i("Module", "removeConfig $mac")
         store.remove(mac)
         if (!store.anyEnabled()) ProximityServiceManager.stop(ctx)
         p.resolve(null)
@@ -58,16 +68,24 @@ class ProximityModule(reactCtx: ReactApplicationContext) : ReactContextBaseJavaM
 
     @ReactMethod
     fun recordManualLock(mac: String, p: Promise) {
+        val now = android.os.SystemClock.elapsedRealtime()
+        ProximityLog.i("Module", "recordManualLock $mac at $now")
         // MUST use elapsedRealtime to match the time base ProximityEngine uses
         // for tMs in push()/tick(). Mixing wall clock here would break cooldown.
-        store.recordManualLock(mac, android.os.SystemClock.elapsedRealtime())
+        store.recordManualLock(mac, now)
         p.resolve(null)
     }
 
     @ReactMethod
-    fun startService(p: Promise) { ProximityServiceManager.start(ctx); p.resolve(null) }
+    fun startService(p: Promise) {
+        ProximityLog.i("Module", "startService (RN bridge)")
+        ProximityServiceManager.start(ctx); p.resolve(null)
+    }
     @ReactMethod
-    fun stopService(p: Promise) { ProximityServiceManager.stop(ctx); p.resolve(null) }
+    fun stopService(p: Promise) {
+        ProximityLog.i("Module", "stopService (RN bridge)")
+        ProximityServiceManager.stop(ctx); p.resolve(null)
+    }
 
     @ReactMethod
     fun heartbeatAt(p: Promise) { p.resolve(store.heartbeatAt().toDouble()) }

@@ -10,7 +10,11 @@ import com.facebook.react.jstasks.HeadlessJsTaskConfig
 class ProximityHeadlessJsTaskService : HeadlessJsTaskService() {
 
     override fun getTaskConfig(intent: Intent): HeadlessJsTaskConfig? {
-        val extras: Bundle = intent.extras ?: return null
+        val extras: Bundle = intent.extras ?: run {
+            ProximityLog.w("Headless", "getTaskConfig: no extras")
+            return null
+        }
+        ProximityLog.i("Headless", "getTaskConfig mac=${extras.getString("mac")}")
         return HeadlessJsTaskConfig(
             "ProximityUnlock",
             Arguments.fromBundle(extras),
@@ -21,6 +25,7 @@ class ProximityHeadlessJsTaskService : HeadlessJsTaskService() {
 
     companion object {
         fun enqueue(ctx: Context, mac: String) {
+            ProximityLog.i("Headless", "enqueue ProximityUnlock mac=$mac")
             val i = Intent(ctx, ProximityHeadlessJsTaskService::class.java)
             i.putExtra("mac", mac)
             ctx.startService(i)

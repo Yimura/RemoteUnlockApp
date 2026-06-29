@@ -49,8 +49,9 @@ class ActivityRecognitionSourceImpl(private val ctx: Context) : MotionGate.Activ
         try {
             ActivityRecognition.getClient(ctx)
                 .requestActivityTransitionUpdates(request, pi!!)
+            ProximityLog.i("Motion", "requestActivityTransitionUpdates registered")
         } catch (e: SecurityException) {
-            // ACTIVITY_RECOGNITION permission denied; MotionGate caller handles fallback.
+            ProximityLog.w("Motion", "ACTIVITY_RECOGNITION permission denied", e)
         }
         // Optimistic initial state so the scanner runs before the first transition arrives.
         cb(true)
@@ -76,6 +77,7 @@ class ActivityRecognitionSourceImpl(private val ctx: Context) : MotionGate.Activ
             val isMoving = latest.activityType != DetectedActivity.STILL &&
                 latest.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER
             val cb = callback ?: return
+            ProximityLog.d("Motion", "transition act=${latest.activityType} t=${latest.transitionType} moving=$isMoving still=$isStill")
             if (isMoving) cb(true)
             if (isStill) cb(false)
         }
