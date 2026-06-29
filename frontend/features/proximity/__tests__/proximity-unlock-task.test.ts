@@ -59,8 +59,10 @@ describe('proximityUnlockTask', () => {
   });
 
   it('still disconnects when setState throws', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     mockSetState.mockRejectedValueOnce(new Error('write failed'));
     await proximityUnlockTask({ mac: 'AA:11' });
     expect(mockDisconnect).toHaveBeenCalledTimes(1);
+    warnSpy.mockRestore();
   });
 });
