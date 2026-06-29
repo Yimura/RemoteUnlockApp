@@ -50,16 +50,15 @@ export class RemoteUnlockDevice {
     }
 
     // Reconcile local connection flag with the actual ble-plx state, then
-    // read characteristics if connected. Lets refresh() observe already-OS-
-    // connected devices without spawning a new connect attempt.
+    // read characteristics. A device returned by BleManager.connectedDevices()
+    // is OS-connected but may not yet be bound to this BleManager instance —
+    // per react-native-ble-plx docs we still need to call .connect() on it
+    // before reading characteristics.
     async updateStates(): Promise<void> {
         try {
-            const live = await this.ble.isConnected();
-            if (!live) {
-                this.connected = false;
-                return;
+            if (!(await this.ble.isConnected())) {
+                await this.ble.connect();
             }
-            // Services may not be discovered yet for OS-handover connections.
             await this.ble.discoverAllServicesAndCharacteristics();
             this.connected = true;
             this.lastConnected = this.lastConnected ?? new Date();
