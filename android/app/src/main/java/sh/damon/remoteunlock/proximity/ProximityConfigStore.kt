@@ -71,6 +71,7 @@ class ProximityConfigStore(ctx: Context) {
         knownMacs().any { get(it).enabled }
 
     fun recordManualLock(mac: String, now: Long) {
+        if (mac !in knownMacs()) return
         set(mac, get(mac).copy(lastManualLockAt = now))
     }
 
@@ -79,6 +80,9 @@ class ProximityConfigStore(ctx: Context) {
     }
 
     fun heartbeatAt(): Long = prefs.getLong("_heartbeatAt", 0L)
+
+    fun bootId(): String = prefs.getString("_bootId", "")!!
+    fun setBootId(id: String) { prefs.edit().putString("_bootId", id).apply() }
 
     companion object {
         private const val PREFS_NAME = "proximity_config"
