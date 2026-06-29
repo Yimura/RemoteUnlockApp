@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import { useOnForegroundFocus } from '@/hooks';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { MainBgColor } from '@/theme/Theme';
 import { DeviceCard, NoDevicesPaired } from './components';
@@ -7,10 +8,7 @@ import { DeviceCard, NoDevicesPaired } from './components';
 export function MyVehiclesPage(): React.JSX.Element {
     const { devices, refresh, isRefreshing } = useDeviceStore();
 
-    useEffect(() => {
-        refresh();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    useOnForegroundFocus(refresh, true);
 
     return (
         <View style={styles.container}>

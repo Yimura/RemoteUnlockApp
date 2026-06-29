@@ -1,31 +1,20 @@
-import { RemoteUnlockDevice } from '@/ble/RemoteUnlockDevice';
-import { useDeviceStore } from '@/stores/deviceStore';
-import React, { useState } from 'react';
+import React from 'react';
 import { LoadingButton } from '../core/LoadingButton';
+import type { RemoteUnlockDevice } from '@/ble/RemoteUnlockDevice';
+import { useDeviceConnection } from './hooks';
 
 interface DeviceConnectionToggleProps {
     device: RemoteUnlockDevice;
 }
-export function DeviceConnectionToggle({ device }: DeviceConnectionToggleProps): React.JSX.Element {
-    const [isLoading, setIsLoading] = useState(false);
-    const { update } = useDeviceStore();
 
-    const toggleConnection = async () => {
-        setIsLoading(true);
-        if (!await device.ble.isConnected()) {
-            await device.connect();
-        }
-        else {
-            await device.disconnect();
-        }
-        update(device);
-        setIsLoading(false);
-    };
+export function DeviceConnectionToggle({ device }: DeviceConnectionToggleProps): React.JSX.Element {
+    const { isLoading, toggle } = useDeviceConnection(device);
 
     return (
         <LoadingButton
             label={device.connected ? 'Disconnect' : 'Connect'}
             isLoading={isLoading}
-            onPress={toggleConnection} />
+            onPress={toggle}
+        />
     );
 }
