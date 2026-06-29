@@ -30,11 +30,13 @@ export class RemoteUnlockDevice {
 
     async connect(): Promise<boolean> {
         try {
-            await this.ble.connect();
+            if (!(await this.ble.isConnected())) {
+                await this.ble.connect();
+            }
             await this.ble.discoverAllServicesAndCharacteristics();
             this.connected = true;
             this.lastConnected = new Date();
-            await this.updateStates();
+            await this.readStates();
         } catch (error) {
             this.connected = false;
             return false;
@@ -47,12 +49,27 @@ export class RemoteUnlockDevice {
         this.connected = false;
     }
 
+    // Reconcile local connection flag with the actual ble-plx state, then
+    // read characteristics if connected. Lets refresh() observe already-OS-
+    // connected devices without spawning a new connect attempt.
     async updateStates(): Promise<void> {
-        if (!this.connected) {
-            this.connect();
-            return;
+        try {
+            const live = await this.ble.isConnected();
+            if (!live) {
+                this.connected = false;
+                return;
+            }
+            // Services may not be discovered yet for OS-handover connections.
+            await this.ble.discoverAllServicesAndCharacteristics();
+            this.connected = true;
+            this.lastConnected = this.lastConnected ?? new Date();
+            await this.readStates();
+        } catch {
+            this.connected = false;
         }
+    }
 
+    private async readStates(): Promise<void> {
         this.locked = await this.doors.getState();
         this.battery = await this.status.getVoltage();
     }

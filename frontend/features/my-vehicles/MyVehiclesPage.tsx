@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { useOnForegroundFocus } from '@/hooks';
 import { useDeviceStore } from '@/stores/deviceStore';
+import { Color } from '@/theme/Color';
 import { MainBgColor } from '@/theme/Theme';
 import { ServiceHealthBanner } from '@/features/proximity/components/service-health-banner';
 import { ProximityModule } from '@/features/proximity/services/proximity-module';
@@ -9,7 +10,7 @@ import { useProximityStore } from '@/features/proximity/stores/proximity-store';
 import { DeviceCard, NoDevicesPaired } from './components';
 
 export function MyVehiclesPage(): React.JSX.Element {
-    const { devices, refresh, isRefreshing } = useDeviceStore();
+    const { devices, refresh, isRefreshing, hasRefreshed } = useDeviceStore();
     const configs = useProximityStore((s) => s.configs);
     const setStore = useProximityStore((s) => s.set);
 
@@ -26,11 +27,18 @@ export function MyVehiclesPage(): React.JSX.Element {
 
     const anyEnabled = devices.some((d) => configs[d.ble.id]?.enabled);
 
+    // Suppress NoDevicesPaired until the first refresh has completed, so the
+    // empty card doesn't flash while we're still discovering OS-connected
+    // devices on a cold launch.
+    const emptyComponent = hasRefreshed
+        ? <NoDevicesPaired />
+        : <View style={styles.loading}><ActivityIndicator color={Color.Blue} /></View>;
+
     return (
         <View style={styles.container}>
             <ServiceHealthBanner anyEnabled={anyEnabled} />
             <FlatList
-                ListEmptyComponent={<NoDevicesPaired />}
+                ListEmptyComponent={emptyComponent}
                 refreshing={isRefreshing}
                 onRefresh={refresh}
                 data={devices}
@@ -48,5 +56,9 @@ const styles = StyleSheet.create({
     item: {
         marginHorizontal: 16,
         marginVertical: 8,
+    },
+    loading: {
+        paddingVertical: 64,
+        alignItems: 'center',
     },
 });

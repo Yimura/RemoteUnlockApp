@@ -1,10 +1,12 @@
 import { DeviceId } from 'react-native-ble-plx';
 import { create } from 'zustand';
 import { RemoteUnlockDevice } from '../ble/RemoteUnlockDevice';
+import { DoorServiceUUID } from '../ble/DoorService';
 import { BLEService } from '../services/BLEService';
 
 interface DeviceStoreState {
     isRefreshing: boolean;
+    hasRefreshed: boolean;
 
     devices: RemoteUnlockDevice[];
 }
@@ -20,6 +22,7 @@ interface DeviceStoreActions {
 
 export const useDeviceStore = create<DeviceStoreState & DeviceStoreActions>()((set, get) => ({
     isRefreshing: false,
+    hasRefreshed: false,
     devices: [],
 
     add: (device) => set(({ devices }) => ({ devices: [...devices, device] })),
@@ -28,19 +31,31 @@ export const useDeviceStore = create<DeviceStoreState & DeviceStoreActions>()((s
     update: (device) => set(({ devices }) => ({ devices: devices.map(_device => _device.ble.id === device.ble.id && device || _device) })),
 
     refresh: async () => {
-        const { add, devices } = get();
-
         set({ isRefreshing: true });
-        for (const existingDevices of devices) {
-            await existingDevices.updateStates();
+
+        const existing = get().devices;
+        for (const dev of existing) {
+            await dev.updateStates();
         }
 
-        const connectedDevices = await BLEService.connectedDevices(['7ccf30e3-a9af-45b2-8d1d-f58e4d30ff95']);
-        const unknownConnectedDevices = connectedDevices.filter((device) => devices.find(_dev => device.id === _dev.ble.id) === undefined);
-        for (const newDevice of unknownConnectedDevices) {
-            add(new RemoteUnlockDevice(newDevice));
+        // Pick up devices the OS already holds a live connection to that
+        // advertise our service. New ones get materialized into RemoteUnlock
+        // wrappers and immediately probed so the home card shows real data.
+        const liveConnected = await BLEService.connectedDevices([DoorServiceUUID]);
+        const fresh = liveConnected.filter(
+            (raw) => existing.find((known) => known.ble.id === raw.id) === undefined,
+        );
+        for (const raw of fresh) {
+            const wrapper = new RemoteUnlockDevice(raw);
+            await wrapper.updateStates();
+            get().add(wrapper);
         }
 
-        set({ isRefreshing: false });
+        // Force a re-render so updated wrappers reflect new state fields.
+        set((s) => ({
+            isRefreshing: false,
+            hasRefreshed: true,
+            devices: [...s.devices],
+        }));
     },
 }));
