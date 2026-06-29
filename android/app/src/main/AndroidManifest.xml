@@ -48,6 +48,9 @@
           android:name=".proximity.ProximityService"
           android:foregroundServiceType="connectedDevice|location"
           android:exported="false" />
+      <service
+          android:name=".proximity.ProximityHeadlessJsTaskService"
+          android:exported="false" />
       <receiver android:name=".proximity.BootReceiver" android:exported="true">
           <intent-filter>
               <action android:name="android.intent.action.BOOT_COMPLETED" />
