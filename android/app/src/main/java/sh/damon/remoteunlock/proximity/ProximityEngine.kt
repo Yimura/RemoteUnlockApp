@@ -28,6 +28,8 @@ class ProximityEngine(
 
     fun updateConfig(newCfg: ProximityConfigStore.ProximityConfig) { cfg = newCfg }
 
+    fun lastSampleAtMs(): Long = lastSampleAt
+
     fun push(rssi: Int, tMs: Long): ProximityEvent? {
         rssiBuf[head] = rssi
         tBuf[head] = tMs

@@ -24,18 +24,31 @@ class ProximityService : Service() {
     private lateinit var store: ProximityConfigStore
     private lateinit var dispatcher: Dispatcher
     private lateinit var scanner: ProximityScanner
+    private lateinit var motionGate: MotionGate
     private val engines = mutableMapOf<String, ProximityEngine>()
     private val handler = Handler(Looper.getMainLooper())
+    @Volatile private var scannerMode: ProximityScanner.Mode = ProximityScanner.Mode.LOW_POWER
 
     override fun onCreate() {
         super.onCreate()
         store = ProximityConfigStore(applicationContext)
-        // elapsedRealtime resets on reboot; any stored lastManualLockAt from a prior boot
-        // is meaningless and would suppress unlocks indefinitely. Reset on every service start.
-        store.knownMacs().forEach { mac ->
-            val c = store.get(mac)
-            if (c.lastManualLockAt != 0L) store.set(mac, c.copy(lastManualLockAt = 0L))
+
+        // elapsedRealtime resets on reboot but persists across OOM-kill restarts.
+        // Compare a stored boot-id derived from elapsedRealtime against the current
+        // uptime to detect REAL reboots; only then clear lastManualLockAt.
+        val nowElapsed = android.os.SystemClock.elapsedRealtime()
+        val nowBootMs = System.currentTimeMillis() - nowElapsed   // boot timestamp in wall-clock ms
+        val storedBootMs = store.bootId().toLongOrNull() ?: 0L
+        // A real reboot shifts the inferred boot time. Allow ±5s slack for NTP wobble.
+        val rebooted = storedBootMs == 0L || kotlin.math.abs(nowBootMs - storedBootMs) > 5_000L
+        if (rebooted) {
+            store.knownMacs().forEach { mac ->
+                val c = store.get(mac)
+                if (c.lastManualLockAt != 0L) store.set(mac, c.copy(lastManualLockAt = 0L))
+            }
+            store.setBootId(nowBootMs.toString())
         }
+
         dispatcher = Dispatcher(store, object : Dispatcher.Sinks {
             override fun postConfirmNotification(mac: String) {
                 NotificationHelper.postConfirm(applicationContext, mac)
@@ -47,8 +60,25 @@ class ProximityService : Service() {
         scanner = ProximityScanner(buildScannerSource())
         scanner.setListener { mac, rssi, t -> onScan(mac, rssi, t) }
 
+        motionGate = MotionGate(ActivityRecognitionSourceImpl(applicationContext))
+        motionGate.subscribe { state ->
+            if (state == MotionGate.MotionState.MOVING) {
+                scanner.start(scannerMode)
+            } else {
+                scanner.stop()
+            }
+        }
+        if (!hasActivityRecognitionPermission()) {
+            motionGate.onPermissionDenied()
+        }
+
+        if (!hasRequiredPermissions()) {
+            // Stop self; user must grant perms before service can run.
+            stopSelf()
+            return
+        }
+
         startForegroundInternal()
-        scanner.start(ProximityScanner.Mode.LOW_POWER)
         handler.post(tickRunnable)
     }
 
@@ -60,6 +90,7 @@ class ProximityService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(tickRunnable)
+        motionGate.unsubscribe()
         scanner.stop()
     }
 
@@ -78,7 +109,13 @@ class ProximityService : Service() {
             .setSmallIcon(android.R.drawable.ic_lock_idle_lock)
             .setOngoing(true)
             .build()
-        startForeground(NOTIF_ID, notif)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(NOTIF_ID, notif,
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+        } else {
+            startForeground(NOTIF_ID, notif)
+        }
     }
 
     private fun onScan(mac: String, rssi: Int, t: Long) {
@@ -87,6 +124,39 @@ class ProximityService : Service() {
         val engine = engines.getOrPut(mac) { ProximityEngine(cfg) }
         engine.updateConfig(cfg)
         engine.push(rssi, t)?.let { dispatcher.onEvent(mac, it) }
+
+        val targetMode = decideScannerMode()
+        if (targetMode != scannerMode) {
+            scannerMode = targetMode
+            scanner.start(targetMode)
+        }
+    }
+
+    private fun decideScannerMode(): ProximityScanner.Mode {
+        // If any engine is currently in NEAR state, stay in LOW_LATENCY for fast EXIT detection.
+        // Otherwise, if any has recent samples (< 5s old), use LOW_LATENCY for predictive accuracy.
+        val now = SystemClock.elapsedRealtime()
+        val hot = engines.values.any {
+            it.state == ProximityEngine.State.NEAR ||
+            (now - it.lastSampleAtMs() < 5_000L)
+        }
+        return if (hot) ProximityScanner.Mode.LOW_LATENCY else ProximityScanner.Mode.LOW_POWER
+    }
+
+    private fun hasActivityRecognitionPermission(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return true
+        return checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) ==
+               android.content.pm.PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun hasRequiredPermissions(): Boolean {
+        val pm = android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (checkSelfPermission(android.Manifest.permission.BLUETOOTH_SCAN) != pm) return false
+            if (checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != pm) return false
+        }
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != pm) return false
+        return true
     }
 
     private val tickRunnable = object : Runnable {
