@@ -44,4 +44,25 @@ describe('DeviceLockButton', () => {
       expect(mockUpdate).toHaveBeenCalledWith(mockDevice);
     });
   });
+
+  it('does not record manual lock when setState rejects', async () => {
+    const { ProximityModule } = jest.requireMock('@/features/proximity');
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    mockDevice.doors.setState.mockRejectedValueOnce(new Error('BLE write failed'));
+
+    const { UNSAFE_getByType } = render(<DeviceLockButton device={mockDevice} />);
+    const { Pressable } = require('react-native');
+    fireEvent.press(UNSAFE_getByType(Pressable));
+
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalled();
+    });
+
+    expect(ProximityModule.recordManualLock).not.toHaveBeenCalled();
+    expect(mockUpdate).not.toHaveBeenCalled();
+    expect(mockDevice.locked).toBe(LockState.Unlocked);
+
+    consoleSpy.mockRestore();
+  });
 });
