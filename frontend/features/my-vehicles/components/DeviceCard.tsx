@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import {
     BatteryCharging,
     BatteryFull,
@@ -58,7 +58,8 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
     };
 
     const battery = batteryView(device.battery);
-    const lockPill = lockPillView(device.locked);
+    const isLocked = device.locked === LockState.Locked;
+    const isUnlocked = device.locked === LockState.Unlocked;
 
     return (
         <Card style={[styles.card, style]}>
@@ -69,9 +70,6 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
                 <View style={styles.headerText}>
                     <Title numberOfLines={1}>{device.ble.localName || 'Unknown'}</Title>
                     <Description numberOfLines={1}>BLE remote unlock</Description>
-                </View>
-                <View style={[styles.lockPill, { backgroundColor: lockPill.bg, borderColor: lockPill.fg }]}>
-                    <Text style={[styles.lockPillTxt, { color: lockPill.fg }]}>{lockPill.label}</Text>
                 </View>
             </View>
 
@@ -102,27 +100,39 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
             </View>
 
             {device.connected ? (
-                <View style={styles.actionRow}>
-                    <Button
-                        onPress={unlock}
-                        disabled={device.locked === LockState.Unlocked}
-                        style={({ pressed }) => StyleSheet.flatten([
-                            styles.unlockBtn,
-                            pressed && device.locked !== LockState.Unlocked ? styles.unlockBtnPressed : null,
-                        ])}>
-                        <Unlock size={18} color={Color.White} />
-                        <Text style={styles.actionBtnTxt}>Unlock</Text>
-                    </Button>
-                    <Button
+                <View style={styles.lockSwitch}>
+                    <Pressable
                         onPress={lock}
-                        disabled={device.locked === LockState.Locked}
+                        disabled={isLocked}
                         style={({ pressed }) => StyleSheet.flatten([
-                            styles.lockBtn,
-                            pressed && device.locked !== LockState.Locked ? styles.lockBtnPressed : null,
+                            styles.switchHalf,
+                            isLocked ? styles.switchHalfLockActive : null,
+                            pressed && !isLocked ? styles.switchHalfPressed : null,
                         ])}>
-                        <Lock size={18} color={Color.White} />
-                        <Text style={styles.actionBtnTxt}>Lock</Text>
-                    </Button>
+                        <Lock size={16} color={isLocked ? Color.White : SmallTextColor} />
+                        <Text style={[
+                            styles.switchTxt,
+                            isLocked ? styles.switchTxtActive : styles.switchTxtMuted,
+                        ]}>
+                            {isLocked ? 'Locked' : 'Lock'}
+                        </Text>
+                    </Pressable>
+                    <Pressable
+                        onPress={unlock}
+                        disabled={isUnlocked}
+                        style={({ pressed }) => StyleSheet.flatten([
+                            styles.switchHalf,
+                            isUnlocked ? styles.switchHalfUnlockActive : null,
+                            pressed && !isUnlocked ? styles.switchHalfPressed : null,
+                        ])}>
+                        <Unlock size={16} color={isUnlocked ? Color.White : SmallTextColor} />
+                        <Text style={[
+                            styles.switchTxt,
+                            isUnlocked ? styles.switchTxtActive : styles.switchTxtMuted,
+                        ]}>
+                            {isUnlocked ? 'Unlocked' : 'Unlock'}
+                        </Text>
+                    </Pressable>
                 </View>
             ) : (
                 <Button
@@ -153,16 +163,6 @@ export function DeviceCard({ device, style }: DeviceCardProps): React.JSX.Elemen
             </Button>
         </Card>
     );
-}
-
-const ORANGE_TINT = 'rgba(217, 119, 6, 0.12)';
-
-function lockPillView(state: LockState) {
-    switch (state) {
-        case LockState.Locked:   return { label: 'Locked',   fg: Color.Blue,   bg: Color.WashedBlue };
-        case LockState.Unlocked: return { label: 'Unlocked', fg: Color.Orange, bg: ORANGE_TINT };
-        default:                 return { label: 'Unknown',  fg: Color.Grey,   bg: Color.BrokenWhite };
-    }
 }
 
 function batteryView(v?: number): { icon: React.JSX.Element; label: string; color: string } {
@@ -205,18 +205,6 @@ const styles = StyleSheet.create({
     headerText: {
         flex: 1,
     },
-    lockPill: {
-        borderWidth: 1,
-        borderRadius: 999,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-    },
-    lockPillTxt: {
-        fontSize: 12,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
     statusGrid: {
         flexDirection: 'row',
         gap: 8,
@@ -243,29 +231,42 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         letterSpacing: 0.4,
     },
-    actionRow: {
+    lockSwitch: {
         flexDirection: 'row',
-        gap: 12,
+        backgroundColor: Color.OffWhite,
+        borderWidth: 1,
+        borderColor: BorderColor,
+        borderRadius: 999,
+        padding: 4,
+        gap: 4,
     },
-    unlockBtn: {
+    switchHalf: {
         flex: 1,
-        backgroundColor: Color.Orange,
-        borderColor: Color.Orange,
-        paddingVertical: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 10,
+        borderRadius: 999,
     },
-    unlockBtnPressed: {
-        backgroundColor: 'rgb(184, 100, 6)',
-        borderColor: 'rgb(184, 100, 6)',
-    },
-    lockBtn: {
-        flex: 1,
+    switchHalfLockActive: {
         backgroundColor: Color.Blue,
-        borderColor: Color.Blue,
-        paddingVertical: 12,
     },
-    lockBtnPressed: {
-        backgroundColor: Color.OffBlue,
-        borderColor: Color.OffBlue,
+    switchHalfUnlockActive: {
+        backgroundColor: Color.Orange,
+    },
+    switchHalfPressed: {
+        backgroundColor: Color.BrokenWhite,
+    },
+    switchTxt: {
+        fontWeight: '700',
+        fontSize: 14,
+    },
+    switchTxtActive: {
+        color: Color.White,
+    },
+    switchTxtMuted: {
+        color: SmallTextColor,
     },
     connectBtn: {
         backgroundColor: Color.Blue,
