@@ -74,6 +74,12 @@ class ProximityConfigStore(ctx: Context) {
         set(mac, get(mac).copy(lastManualLockAt = now))
     }
 
+    fun recordHeartbeat(now: Long) {
+        prefs.edit().putLong("_heartbeatAt", now).apply()
+    }
+
+    fun heartbeatAt(): Long = prefs.getLong("_heartbeatAt", 0L)
+
     companion object {
         private const val PREFS_NAME = "proximity_config"
         private const val KNOWN = "_known"
