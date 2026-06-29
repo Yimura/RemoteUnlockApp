@@ -9,6 +9,7 @@ import { RemoveDevice } from './components';
 import { DeviceConnectionToggle } from '@/components/device';
 import { useSaveDeviceName } from './hooks';
 import { useRootNavigation } from '@/hooks';
+import { BorderColor, TextColor, SmallTextColor } from '@/theme/Theme';
 
 interface DeviceSettingsPageRoute {
     route: {
@@ -45,8 +46,13 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
                     <Text>Device Name</Text>
                     <TextInput style={styles.input} onChangeText={setDeviceName} value={deviceName} />
                 </View>
-                <Pressable onPress={() => nav.navigate('Proximity Settings', { mac: device.ble.id })}>
-                    <Text>Auto unlock / lock</Text>
+                <Pressable onPress={() => nav.navigate('Proximity Settings', { mac: device.ble.id })}
+                           style={styles.navRow}>
+                    <View style={styles.navRowText}>
+                        <Text style={styles.navRowLabel}>Auto unlock / lock</Text>
+                        <Description>Configure proximity-based behaviour for this vehicle.</Description>
+                    </View>
+                    <Text style={styles.navRowChevron}>›</Text>
                 </Pressable>
                 <Button style={({ pressed }) => pressed ? styles.saveBtnPressed : styles.saveBtn} onPress={onSave}>
                     <Text style={styles.saveTxt}>Save Changes</Text>
@@ -79,6 +85,18 @@ const styles = StyleSheet.create({
         margin: 0,
         padding: 8,
     },
+    navRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 8,
+        borderTopWidth: 1,
+        borderTopColor: BorderColor,
+        gap: 8,
+    },
+    navRowText: { flex: 1 },
+    navRowLabel: { color: TextColor },
+    navRowChevron: { color: SmallTextColor, fontSize: 18 },
     saveTxt: {
         color: Color.White,
     },
