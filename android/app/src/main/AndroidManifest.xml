@@ -60,5 +60,8 @@
               <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
           </intent-filter>
       </receiver>
+      <receiver
+          android:name=".proximity.ActivityRecognitionSourceImpl$MotionTransitionReceiver"
+          android:exported="false" />
     </application>
 </manifest>
