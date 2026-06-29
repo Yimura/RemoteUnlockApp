@@ -5,18 +5,26 @@ import { useDeviceStore } from '@/stores/deviceStore';
 import { MainBgColor } from '@/theme/Theme';
 import { ServiceHealthBanner } from '@/features/proximity/components/service-health-banner';
 import { ProximityModule } from '@/features/proximity/services/proximity-module';
+import { useProximityStore } from '@/features/proximity/stores/proximity-store';
 import { DeviceCard, NoDevicesPaired } from './components';
 
 export function MyVehiclesPage(): React.JSX.Element {
     const { devices, refresh, isRefreshing } = useDeviceStore();
-    const [anyEnabled, setAnyEnabled] = useState(false);
+    const configs = useProximityStore((s) => s.configs);
+    const setStore = useProximityStore((s) => s.set);
 
     useOnForegroundFocus(refresh, true);
 
     useEffect(() => {
-        Promise.all(devices.map(d => ProximityModule.getConfig(d.ble.id)))
-            .then(cfgs => setAnyEnabled(cfgs.some(c => c.enabled)));
-    }, [devices]);
+        let cancelled = false;
+        Promise.all(devices.map((d) => ProximityModule.getConfig(d.ble.id))).then((cfgs) => {
+            if (cancelled) return;
+            devices.forEach((d, i) => setStore(d.ble.id, cfgs[i]));
+        });
+        return () => { cancelled = true; };
+    }, [devices, setStore]);
+
+    const anyEnabled = devices.some((d) => configs[d.ble.id]?.enabled);
 
     return (
         <View style={styles.container}>
