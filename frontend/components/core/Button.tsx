@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, PressableProps, StyleSheet } from 'react-native';
-import type { PressableStateCallbackType } from 'react-native';
+import type { GestureResponderEvent, PressableStateCallbackType } from 'react-native';
 import { BgColor, BorderColor } from '../../theme/Theme';
 
 export interface ButtonProps extends PressableProps { }
@@ -18,7 +18,7 @@ export function Button({ style, disabled = false, onPress, ...props }: ButtonPro
         ]);
     };
 
-    const onPressInterceptor = (e) => {
+    const onPressInterceptor = (e: GestureResponderEvent) => {
         if (!disabled) {
             onPress?.(e);
         }
