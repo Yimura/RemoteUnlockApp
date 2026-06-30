@@ -25,9 +25,32 @@ export const useDeviceStore = create<DeviceStoreState & DeviceStoreActions>()((s
     hasRefreshed: false,
     devices: [],
 
-    add: (device) => set(({ devices }) => ({ devices: [...devices, device] })),
+    // Dedupe by ble.id. The pairing flow always calls add() on Pair Now, even
+    // when the device was already materialized by refresh() picking it up via
+    // BLEService.connectedDevices() — without this guard the same MAC appears
+    // twice in the array, triggering React's duplicate-key warning in
+    // MyVehiclesPage / any list keyed on ble.id.
+    add: (device) => {
+        // Spread the array whenever the peripheral indicates a new lock
+        // state so subscribed components re-render. Plain mutation of
+        // device.locked is invisible to Zustand selectors otherwise.
+        device.setOnStateChange((d) => set((s) => ({
+            devices: s.devices.map(_d => _d.ble.id === d.ble.id ? d : _d),
+        })));
+        device.startWatching();
+        set(({ devices }) => {
+            const idx = devices.findIndex(d => d.ble.id === device.ble.id);
+            if (idx === -1) return { devices: [...devices, device] };
+            const next = devices.slice();
+            next[idx] = device;
+            return { devices: next };
+        });
+    },
     get: (id) => get().devices.find(device => device.ble.id === id),
-    remove: (id) => set(({ devices }) => ({ devices: devices.filter(device => device.ble.id !== id) })),
+    remove: (id) => set(({ devices }) => {
+        devices.find(d => d.ble.id === id)?.stopWatching();
+        return { devices: devices.filter(device => device.ble.id !== id) };
+    }),
     update: (device) => set(({ devices }) => ({ devices: devices.map(_device => _device.ble.id === device.ble.id && device || _device) })),
 
     refresh: async () => {
@@ -43,6 +66,11 @@ export const useDeviceStore = create<DeviceStoreState & DeviceStoreActions>()((s
         try {
             for (const dev of get().devices) {
                 await dev.updateStates();
+                // ble-plx drops subscriptions on disconnect, so a refresh
+                // that reconnects an OS-disconnected device needs to re-arm
+                // the DoorLockState monitor or peripheral-initiated changes
+                // stop reaching the UI after a single drop/reconnect cycle.
+                if (dev.connected) dev.startWatching();
             }
 
             // Pick up devices the OS already holds a live connection to that

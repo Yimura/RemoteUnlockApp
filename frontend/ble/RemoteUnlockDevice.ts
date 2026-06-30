@@ -1,4 +1,4 @@
-import { Device } from 'react-native-ble-plx';
+import { Device, Subscription } from 'react-native-ble-plx';
 import { ProximityModule } from '@/features/proximity';
 import { SettingService } from './SettingsService';
 import { DoorService } from './DoorService';
@@ -21,12 +21,22 @@ export class RemoteUnlockDevice {
     status: StatusService;
     settings: SettingService;
 
+    // Set by deviceStore so a peripheral-initiated lock state change can
+    // re-spread the devices array and re-render any subscribed component.
+    // Plain mutation of `this.locked` is invisible to Zustand selectors.
+    private onStateChange?: (device: RemoteUnlockDevice) => void;
+    private lockStateSub?: Subscription;
+
     constructor(device: Device) {
         this.ble = device;
 
         this.doors = new DoorService(device);
         this.status = new StatusService(device);
         this.settings = new SettingService(device);
+    }
+
+    setOnStateChange(cb: (device: RemoteUnlockDevice) => void): void {
+        this.onStateChange = cb;
     }
 
     async connect(): Promise<boolean> {
@@ -61,6 +71,7 @@ export class RemoteUnlockDevice {
     }
 
     async disconnect(): Promise<void> {
+        this.stopWatching();
         await this.ble.cancelConnection();
         this.connected = false;
     }
@@ -87,5 +98,26 @@ export class RemoteUnlockDevice {
     private async readStates(): Promise<void> {
         this.locked = await this.doors.getState();
         this.battery = await this.status.getVoltage();
+    }
+
+    // Arm a monitor on the DoorLockState indication. Caller must invoke
+    // setOnStateChange() first or peripheral-initiated changes silently drop.
+    // Safe to call repeatedly — prior subscription is torn down before the
+    // new one arms. ble-plx removes subscriptions on disconnect, so a
+    // reconnect must call this again. The deviceStore drives both ends:
+    // add() wires the callback + starts watching, refresh() re-arms after
+    // updateStates() restores the connection.
+    startWatching(): void {
+        this.lockStateSub?.remove();
+        this.lockStateSub = this.doors.watchState((state) => {
+            if (this.locked === state) return;
+            this.locked = state;
+            this.onStateChange?.(this);
+        });
+    }
+
+    stopWatching(): void {
+        this.lockStateSub?.remove();
+        this.lockStateSub = undefined;
     }
 }
