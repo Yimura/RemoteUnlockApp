@@ -22,7 +22,7 @@ class ProximityService : Service() {
     private var motionGate: MotionGate? = null
     private val engines = mutableMapOf<String, ProximityEngine>()
     private val handler = Handler(Looper.getMainLooper())
-    @Volatile private var scannerMode: ProximityScanner.Mode = ProximityScanner.Mode.LOW_POWER
+    @Volatile private var scannerMode: ProximityScanner.Mode = ProximityScanner.Mode.BALANCED
 
     // Tracking for the persistent notification: primary MAC = most recently seen
     // enabled device. Used for the Unlock/Lock action buttons and for the
@@ -179,14 +179,20 @@ class ProximityService : Service() {
     }
 
     private fun decideScannerMode(): ProximityScanner.Mode {
-        // If any engine is currently in NEAR state, stay in LOW_LATENCY for fast EXIT detection.
-        // Otherwise, if any has recent samples (< 5s old), use LOW_LATENCY for predictive accuracy.
+        // Hot — engine NEAR or recently sampling — pin LOW_LATENCY for fast
+        // EXIT detection and predictive accuracy. Otherwise stay BALANCED:
+        // LOW_POWER's ~0.5s window per 5s leaves the first BLE5 ext-adv
+        // hit minutes away when the user approaches a stationary peripheral,
+        // which made CONFIRM mode unusably slow. BALANCED scans roughly
+        // 25% duty — first-hit drops from tens-of-seconds to a few seconds
+        // at the cost of moderate extra battery use while the service is
+        // running (motion gate exists to bound that when it's wired up).
         val now = SystemClock.elapsedRealtime()
         val hot = engines.values.any {
             it.state == ProximityEngine.State.NEAR ||
             (now - it.lastSampleAtMs() < 5_000L)
         }
-        return if (hot) ProximityScanner.Mode.LOW_LATENCY else ProximityScanner.Mode.LOW_POWER
+        return if (hot) ProximityScanner.Mode.LOW_LATENCY else ProximityScanner.Mode.BALANCED
     }
 
     private fun hasActivityRecognitionPermission(): Boolean {
