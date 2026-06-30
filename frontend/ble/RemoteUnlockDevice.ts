@@ -1,4 +1,5 @@
 import { Device } from 'react-native-ble-plx';
+import { ProximityModule } from '@/features/proximity';
 import { SettingService } from './SettingsService';
 import { DoorService } from './DoorService';
 import { StatusService } from './StatusService';
@@ -36,12 +37,27 @@ export class RemoteUnlockDevice {
             await this.ble.discoverAllServicesAndCharacteristics();
             this.connected = true;
             this.lastConnected = new Date();
+            await this.ensureBonded();
             await this.readStates();
         } catch (error) {
             this.connected = false;
             return false;
         }
         return true;
+    }
+
+    // Some characteristics on the peripheral require an OS-level bond before
+    // writes succeed. Without this the first write triggers an implicit
+    // pairing prompt mid-operation. Force-bond up front so the user sees the
+    // dialog at a predictable moment and subsequent writes go through clean.
+    async ensureBonded(): Promise<void> {
+        try {
+            const state = await ProximityModule.getBondState(this.ble.id);
+            if (state === 'BONDED') return;
+            await ProximityModule.createBond(this.ble.id);
+        } catch {
+            // best-effort; underlying write will surface a more useful error
+        }
     }
 
     async disconnect(): Promise<void> {

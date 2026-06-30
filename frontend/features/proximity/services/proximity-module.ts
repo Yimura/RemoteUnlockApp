@@ -19,6 +19,8 @@ export interface CalibrationResult {
     count: number;
 }
 
+export type BondState = 'BONDED' | 'BONDING' | 'NONE' | 'UNKNOWN';
+
 interface Native {
     getConfig(mac: string): Promise<ProximityConfig>;
     setConfig(mac: string, cfg: ProximityConfig): Promise<void>;
@@ -30,6 +32,8 @@ interface Native {
     captureRssi(mac: string, durationMs: number): Promise<CalibrationResult>;
     getDebugMode(): Promise<boolean>;
     setDebugMode(on: boolean): Promise<void>;
+    getBondState(mac: string): Promise<BondState>;
+    createBond(mac: string): Promise<boolean>;
 }
 
 const NoopNative: Native = {
@@ -48,6 +52,8 @@ const NoopNative: Native = {
     captureRssi: async () => ({ rssi: -100, stddev: 0, count: 0 }),
     getDebugMode: async () => false,
     setDebugMode: async () => {},
+    getBondState: async () => 'UNKNOWN' as BondState,
+    createBond: async () => false,
 };
 
 export const ProximityModule: Native =

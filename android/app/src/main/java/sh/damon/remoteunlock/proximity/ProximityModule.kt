@@ -1,10 +1,15 @@
 package sh.damon.remoteunlock.proximity
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import com.facebook.react.bridge.*
 import kotlin.math.sqrt
 
@@ -98,6 +103,102 @@ class ProximityModule(reactCtx: ReactApplicationContext) : ReactContextBaseJavaM
         ProximityLog.i("Module", "setDebugMode $on")
         store.setDebugMode(on)
         p.resolve(null)
+    }
+
+    @ReactMethod
+    fun getBondState(mac: String, p: Promise) {
+        val adapter = BluetoothAdapter.getDefaultAdapter()
+        if (adapter == null) { p.resolve("UNKNOWN"); return }
+        val state = try {
+            adapter.getRemoteDevice(mac).bondState
+        } catch (e: IllegalArgumentException) {
+            p.reject("E_MAC", "Invalid MAC: $mac", e); return
+        }
+        p.resolve(bondStateName(state))
+    }
+
+    /**
+     * Request a bond (OS pairing) with the remote device. If already bonded,
+     * resolves immediately with true. Otherwise registers a BroadcastReceiver
+     * for ACTION_BOND_STATE_CHANGED, calls createBond, and resolves with
+     * true on BOND_BONDED / false on BOND_NONE or timeout (30s).
+     */
+    @ReactMethod
+    fun createBond(mac: String, p: Promise) {
+        val adapter = BluetoothAdapter.getDefaultAdapter()
+        if (adapter == null) { p.reject("E_BT", "No Bluetooth adapter"); return }
+        val device = try {
+            adapter.getRemoteDevice(mac)
+        } catch (e: IllegalArgumentException) {
+            p.reject("E_MAC", "Invalid MAC: $mac", e); return
+        }
+
+        if (device.bondState == BluetoothDevice.BOND_BONDED) {
+            ProximityLog.i("Bond", "$mac already BONDED")
+            p.resolve(true); return
+        }
+
+        var resolved = false
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(c: Context, i: Intent) {
+                if (i.action != BluetoothDevice.ACTION_BOND_STATE_CHANGED) return
+                val dev = i.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                if (dev?.address != mac) return
+                val state = i.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.BOND_NONE)
+                ProximityLog.i("Bond", "$mac state -> ${bondStateName(state)}")
+                if (resolved) return
+                when (state) {
+                    BluetoothDevice.BOND_BONDED -> {
+                        resolved = true
+                        try { ctx.unregisterReceiver(this) } catch (_: IllegalArgumentException) {}
+                        p.resolve(true)
+                    }
+                    BluetoothDevice.BOND_NONE -> {
+                        // Only treat NONE as failure once BONDING was observed; an initial
+                        // NONE event can fire before createBond does anything.
+                    }
+                }
+            }
+        }
+        val filter = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            ctx.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+        } else {
+            @Suppress("UnspecifiedRegisterReceiverFlag")
+            ctx.registerReceiver(receiver, filter)
+        }
+
+        // Safety timeout — user may dismiss the pairing dialog.
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            if (resolved) return@postDelayed
+            resolved = true
+            try { ctx.unregisterReceiver(receiver) } catch (_: IllegalArgumentException) {}
+            ProximityLog.w("Bond", "$mac createBond timed out")
+            p.resolve(false)
+        }, 30_000L)
+
+        try {
+            val started = device.createBond()
+            ProximityLog.i("Bond", "$mac createBond() returned $started")
+            if (!started && !resolved) {
+                resolved = true
+                try { ctx.unregisterReceiver(receiver) } catch (_: IllegalArgumentException) {}
+                p.resolve(false)
+            }
+        } catch (e: SecurityException) {
+            if (!resolved) {
+                resolved = true
+                try { ctx.unregisterReceiver(receiver) } catch (_: IllegalArgumentException) {}
+                p.reject("E_PERM", "BLUETOOTH_CONNECT missing", e)
+            }
+        }
+    }
+
+    private fun bondStateName(state: Int): String = when (state) {
+        BluetoothDevice.BOND_BONDED  -> "BONDED"
+        BluetoothDevice.BOND_BONDING -> "BONDING"
+        BluetoothDevice.BOND_NONE    -> "NONE"
+        else                         -> "UNKNOWN"
     }
 
     @ReactMethod

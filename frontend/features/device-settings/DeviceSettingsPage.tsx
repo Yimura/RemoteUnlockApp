@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card } from '../../components/core/Card';
 import { Color } from '../../theme/Color';
@@ -11,6 +11,7 @@ import { useSaveDeviceName } from './hooks';
 import { useRootNavigation } from '@/hooks';
 import { BorderColor, SmallTextColor, TextColor } from '@/theme/Theme';
 import { LockState } from '@/ble/RemoteUnlockDevice';
+import { ProximityModule, type BondState } from '@/features/proximity';
 
 interface DeviceSettingsPageRoute {
     route: {
@@ -40,6 +41,31 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
     const lockLabel =
         device.locked === LockState.Locked ? 'Locked' :
         device.locked === LockState.Unlocked ? 'Unlocked' : 'Unknown';
+
+    const [bondState, setBondState] = useState<BondState>('UNKNOWN');
+    const [bonding, setBonding] = useState(false);
+    const refreshBond = useCallback(async () => {
+        const s = await ProximityModule.getBondState(device.ble.id);
+        setBondState(s);
+    }, [device.ble.id]);
+    useEffect(() => { refreshBond(); }, [refreshBond]);
+    const repair = async () => {
+        setBonding(true);
+        try {
+            await ProximityModule.createBond(device.ble.id);
+        } finally {
+            setBonding(false);
+            refreshBond();
+        }
+    };
+    const bondColor =
+        bondState === 'BONDED'  ? Color.Green :
+        bondState === 'BONDING' ? Color.Orange :
+        bondState === 'NONE'    ? Color.Red : Color.Grey;
+    const bondLabel =
+        bondState === 'BONDED'  ? 'Paired' :
+        bondState === 'BONDING' ? 'Pairing…' :
+        bondState === 'NONE'    ? 'Not paired' : 'Unknown';
 
     return (
         <View style={styles.container}>
@@ -72,6 +98,29 @@ export function DeviceSettingsPage({ route }: DeviceSettingsPageRoute): React.JS
                         <Description>Toggle BLE connection on demand.</Description>
                     </View>
                     <DeviceConnectionToggle device={device} />
+                </View>
+
+                <View style={styles.row}>
+                    <View style={styles.rowText}>
+                        <Text style={styles.fieldLabel}>Pairing</Text>
+                        <View style={styles.bondLine}>
+                            <View style={[styles.statusDot, { backgroundColor: bondColor }]} />
+                            <Description>{bondLabel}</Description>
+                        </View>
+                    </View>
+                    {bondState !== 'BONDED' && (
+                        <Button
+                            onPress={repair}
+                            disabled={bonding}
+                            style={({ pressed }) => StyleSheet.flatten([
+                                styles.saveBtn,
+                                pressed && !bonding ? styles.saveBtnPressed : null,
+                            ])}>
+                            <Text style={styles.saveBtnTxt}>
+                                {bonding ? 'Pairing…' : 'Pair'}
+                            </Text>
+                        </Button>
+                    )}
                 </View>
 
                 <View style={styles.nameSection}>
@@ -159,6 +208,11 @@ const styles = StyleSheet.create({
         width: 8,
         height: 8,
         borderRadius: 4,
+    },
+    bondLine: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
     row: {
         flexDirection: 'row',
