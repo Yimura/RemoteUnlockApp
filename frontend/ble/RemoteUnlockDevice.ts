@@ -21,11 +21,13 @@ export class RemoteUnlockDevice {
     status: StatusService;
     settings: SettingService;
 
-    // Set by deviceStore so a peripheral-initiated lock state change can
-    // re-spread the devices array and re-render any subscribed component.
-    // Plain mutation of `this.locked` is invisible to Zustand selectors.
+    // Set by deviceStore so a peripheral-initiated change (lock state,
+    // battery voltage) can re-spread the devices array and re-render any
+    // subscribed component. Plain mutation of `this.locked` / `this.battery`
+    // is invisible to Zustand selectors.
     private onStateChange?: (device: RemoteUnlockDevice) => void;
     private lockStateSub?: Subscription;
+    private voltageSub?: Subscription;
 
     constructor(device: Device) {
         this.ble = device;
@@ -100,10 +102,10 @@ export class RemoteUnlockDevice {
         this.battery = await this.status.getVoltage();
     }
 
-    // Arm a monitor on the DoorLockState indication. Caller must invoke
+    // Arm monitors on every notifying characteristic. Caller must invoke
     // setOnStateChange() first or peripheral-initiated changes silently drop.
-    // Safe to call repeatedly — prior subscription is torn down before the
-    // new one arms. ble-plx removes subscriptions on disconnect, so a
+    // Safe to call repeatedly — prior subscriptions are torn down before the
+    // new ones arm. ble-plx removes subscriptions on disconnect, so a
     // reconnect must call this again. The deviceStore drives both ends:
     // add() wires the callback + starts watching, refresh() re-arms after
     // updateStates() restores the connection.
@@ -114,10 +116,18 @@ export class RemoteUnlockDevice {
             this.locked = state;
             this.onStateChange?.(this);
         });
+        this.voltageSub?.remove();
+        this.voltageSub = this.status.watchVoltage((voltage) => {
+            if (this.battery === voltage) return;
+            this.battery = voltage;
+            this.onStateChange?.(this);
+        });
     }
 
     stopWatching(): void {
         this.lockStateSub?.remove();
         this.lockStateSub = undefined;
+        this.voltageSub?.remove();
+        this.voltageSub = undefined;
     }
 }
