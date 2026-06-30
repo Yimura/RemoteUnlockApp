@@ -37,6 +37,7 @@ object ProximityNotifier {
             .setSmallIcon(android.R.drawable.ic_lock_idle_lock)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
+            .setContentIntent(launchAppIntent(ctx))
 
         if (primaryMac != null) {
             builder.addAction(
@@ -61,6 +62,22 @@ object ProximityNotifier {
             ctx,
             (action + mac).hashCode(),
             intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+    }
+
+    // Tap the notification body -> bring MainActivity to the foreground. Use
+    // the package's launcher intent (CATEGORY_LAUNCHER + ACTION_MAIN) so the
+    // existing task is resumed rather than a fresh activity stacked on top.
+    private fun launchAppIntent(ctx: Context): PendingIntent {
+        val launch = ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)
+            ?: Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+        launch.setPackage(ctx.packageName)
+        launch.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        return PendingIntent.getActivity(
+            ctx,
+            0,
+            launch,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
     }
