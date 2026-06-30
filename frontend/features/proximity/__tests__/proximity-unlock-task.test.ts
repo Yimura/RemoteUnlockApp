@@ -15,6 +15,13 @@ jest.mock('@/services/BLEService', () => ({
   },
 }));
 
+jest.mock('@/features/proximity', () => ({
+  ProximityModule: {
+    getBondState: jest.fn(async () => 'BONDED'),
+    createBond: jest.fn(async () => true),
+  },
+}));
+
 const mockSetState = jest.fn(async () => undefined);
 const mockConnect = jest.fn(async function (this: any) { this.connected = true; return true; });
 const mockDisconnect = jest.fn(async function (this: any) { this.connected = false; });
@@ -45,7 +52,10 @@ function getBLEMock() {
   };
 }
 
+let warnSpy: jest.SpyInstance;
+
 beforeEach(() => {
+  warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
   mockSetState.mockClear();
   mockConnect.mockClear();
   mockDisconnect.mockClear();
@@ -59,6 +69,10 @@ beforeEach(() => {
   ble.stopDeviceScan.mockResolvedValue(undefined);
 });
 
+afterEach(() => {
+  warnSpy.mockRestore();
+});
+
 describe('proximityUnlockTask', () => {
   it('connects, sets state to Unlocked, disconnects', async () => {
     await proximityUnlockTask({ mac: 'AA:11' });
@@ -69,7 +83,6 @@ describe('proximityUnlockTask', () => {
   });
 
   it('does not unlock or throw when no device found', async () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const ble = getBLEMock();
     ble.connectedDevices.mockResolvedValue([]);
     ble.devices.mockResolvedValue([]);
@@ -81,15 +94,12 @@ describe('proximityUnlockTask', () => {
     await proximityUnlockTask({ mac: 'ZZ:99' });
     expect(mockSetState).not.toHaveBeenCalled();
     expect(mockConnect).not.toHaveBeenCalled();
-    warnSpy.mockRestore();
   });
 
   it('still disconnects when setState throws', async () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     mockSetState.mockRejectedValueOnce(new Error('write failed'));
     await proximityUnlockTask({ mac: 'AA:11' });
     expect(mockDisconnect).toHaveBeenCalledTimes(1);
-    warnSpy.mockRestore();
   });
 
   it('falls back to startDeviceScan when device not in known list', async () => {

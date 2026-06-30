@@ -1,8 +1,14 @@
 import { BLEService } from '@/services/BLEService';
 import { LockState, RemoteUnlockDevice } from '@/ble/RemoteUnlockDevice';
 import { DoorServiceUUID } from '@/ble/DoorService';
+import { ProximityModule } from '@/features/proximity';
 
 const SCAN_TIMEOUT_MS = 5_000;
+
+function looksLikeAuthError(err: unknown): boolean {
+    const msg = String((err as { message?: string })?.message ?? err);
+    return /auth|encrypt|bond|insufficient|gatt[_ ]?conn[_ ]?fail/i.test(msg);
+}
 
 async function resolveBleDevice(mac: string) {
     const connected = await BLEService.connectedDevices([DoorServiceUUID]);
@@ -39,21 +45,36 @@ export async function proximityUnlockTask(data: { mac: string; action?: Proximit
     const { mac } = data;
     const action: ProximityAction = data.action === 'lock' ? 'lock' : 'unlock';
     const target = action === 'lock' ? LockState.Locked : LockState.Unlocked;
+    // eslint-disable-next-line no-console
+    const log = (s: string) => console.warn(`[proximity:${action}] ${s}`);
+
     let device: RemoteUnlockDevice | null = null;
     try {
+        log(`begin mac=${mac}`);
         const raw = await resolveBleDevice(mac);
-        if (!raw) {
-            // eslint-disable-next-line no-console
-            console.warn(`[proximity] device not found for ${action}`, mac);
-            return;
-        }
+        if (!raw) { log('device not found'); return; }
+
         device = new RemoteUnlockDevice(raw);
         const ok = await device.connect();
-        if (!ok) return;
-        await device.doors.setState(target);
+        if (!ok) { log('connect failed'); return; }
+
+        const bondBefore = await ProximityModule.getBondState(mac);
+        log(`pre-write bondState=${bondBefore}`);
+
+        try {
+            await device.doors.setState(target);
+            log('write ok');
+        } catch (err) {
+            if (!looksLikeAuthError(err)) throw err;
+            log(`auth error on write (${String((err as { message?: string }).message ?? err)}), forcing rebond + retry`);
+            const bonded = await ProximityModule.createBond(mac);
+            log(`rebond result=${bonded}`);
+            if (!bonded) throw err;
+            await device.doors.setState(target);
+            log('write ok after rebond');
+        }
     } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn(`[proximity] ${action} task failed`, err);
+        log(`failed: ${String((err as { message?: string }).message ?? err)}`);
     } finally {
         try {
             if (device?.connected) await device.disconnect();
