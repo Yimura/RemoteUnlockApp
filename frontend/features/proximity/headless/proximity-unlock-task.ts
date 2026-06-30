@@ -49,11 +49,18 @@ export async function proximityUnlockTask(data: { mac: string; action?: Proximit
     const log = (s: string) => console.warn(`[proximity:${action}] ${s}`);
 
     let device: RemoteUnlockDevice | null = null;
+    // If the link was already up when we got here, the foreground RN app
+    // (deviceStore) owns the lifecycle — tearing it down at end-of-task drops
+    // its monitor subscription and breaks the next Lock/Unlock tap with a
+    // "device disconnected" error until the user pull-to-refreshes. Only
+    // disconnect what we ourselves opened.
+    let weOpenedTheLink = false;
     try {
         log(`begin mac=${mac}`);
         const raw = await resolveBleDevice(mac);
         if (!raw) { log('device not found'); return; }
 
+        weOpenedTheLink = !(await raw.isConnected());
         device = new RemoteUnlockDevice(raw);
         const ok = await device.connect();
         if (!ok) { log('connect failed'); return; }
@@ -77,7 +84,7 @@ export async function proximityUnlockTask(data: { mac: string; action?: Proximit
         log(`failed: ${String((err as { message?: string }).message ?? err)}`);
     } finally {
         try {
-            if (device?.connected) await device.disconnect();
+            if (device?.connected && weOpenedTheLink) await device.disconnect();
         } catch {
             // ignore
         }
