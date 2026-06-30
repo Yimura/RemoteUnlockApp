@@ -11,6 +11,9 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
+import sh.damon.remoteunlock.proximity.ProximityConfigStore
+import sh.damon.remoteunlock.proximity.ProximityLog
+import sh.damon.remoteunlock.proximity.ProximityServiceManager
 
 class MainApplication : Application(), ReactApplication {
 
@@ -39,5 +42,14 @@ class MainApplication : Application(), ReactApplication {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       load()
     }
+
+    // Auto-start the ProximityService on every cold launch when any device
+    // has proximity enabled. Without this the service only spins up after
+    // the user opens the per-device proximity settings page and toggles
+    // a mode — pre-existing CONFIRM/AUTO devices stay dormant after the
+    // app process is killed.
+    val any = ProximityConfigStore(this).anyEnabled()
+    ProximityLog.i("App", "onCreate anyEnabled=$any")
+    if (any) ProximityServiceManager.start(this)
   }
 }
