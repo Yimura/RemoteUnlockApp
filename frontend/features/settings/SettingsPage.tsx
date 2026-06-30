@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Bluetooth, BluetoothOff, ChevronRight, Info, ShieldCheck, Sliders, Zap } from 'lucide-react-native';
+import { Bluetooth, BluetoothOff, Bug, ChevronRight, Info, ShieldCheck, Sliders, Zap } from 'lucide-react-native';
 import { State } from 'react-native-ble-plx';
 import { Card } from '@/components/core/Card';
 import { Button } from '@/components/core/Button';
@@ -34,6 +34,19 @@ export function SettingsPage(): React.JSX.Element {
     const [runInBackground, setRunInBackground] = useState(true);
     const [notifications, setNotifications] = useState(false);
     const [scanInterval, setScanInterval] = useState(5);
+
+    // Debug mode toggle — controls whether the FG notification shows raw dBm.
+    const [debugMode, setDebugMode] = useState(false);
+    useEffect(() => {
+        let cancelled = false;
+        ProximityModule.getDebugMode().then((v) => !cancelled && setDebugMode(v));
+        return () => { cancelled = true; };
+    }, []);
+    const toggleDebug = async () => {
+        const next = !debugMode;
+        setDebugMode(next);
+        await ProximityModule.setDebugMode(next);
+    };
 
     const configs = useProximityStore((s) => s.configs);
     const devices = useDeviceStore((s) => s.devices);
@@ -226,6 +239,23 @@ export function SettingsPage(): React.JSX.Element {
                         </Description>
                     </View>
                 </View>
+            </Card>
+
+            <Card style={styles.card}>
+                <View style={styles.statusRow}>
+                    <View style={styles.statusIconWrap}>
+                        <Bug size={20} color={Color.Blue} />
+                    </View>
+                    <View style={styles.rowText}>
+                        <Title>Diagnostics</Title>
+                        <Description>Developer toggles for tracing proximity behaviour.</Description>
+                    </View>
+                </View>
+                <SettingItem
+                    label="Show signal strength"
+                    description="Append the current RSSI (e.g. -55 dBm) to the persistent proximity notification."
+                    value={debugMode}
+                    onChange={toggleDebug} />
             </Card>
         </ScrollView>
     );

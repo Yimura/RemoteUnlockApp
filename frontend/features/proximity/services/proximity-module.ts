@@ -28,6 +28,8 @@ interface Native {
     stopService(): Promise<void>;
     heartbeatAt(): Promise<number>;
     captureRssi(mac: string, durationMs: number): Promise<CalibrationResult>;
+    getDebugMode(): Promise<boolean>;
+    setDebugMode(on: boolean): Promise<void>;
 }
 
 const NoopNative: Native = {
@@ -44,6 +46,8 @@ const NoopNative: Native = {
     stopService: async () => {},
     heartbeatAt: async () => 0,
     captureRssi: async () => ({ rssi: -100, stddev: 0, count: 0 }),
+    getDebugMode: async () => false,
+    setDebugMode: async () => {},
 };
 
 export const ProximityModule: Native =

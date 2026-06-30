@@ -125,7 +125,8 @@ class ProximityService : Service() {
 
     private fun postNotification() {
         val status = computeStatus()
-        val notif = ProximityNotifier.build(applicationContext, primaryMac, status, primaryLastRssi)
+        val rssi = if (store.isDebugMode()) primaryLastRssi else null
+        val notif = ProximityNotifier.build(applicationContext, primaryMac, status, rssi)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(ProximityNotifier.NOTIF_ID, notif,
                 android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or

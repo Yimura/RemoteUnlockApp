@@ -91,6 +91,16 @@ class ProximityModule(reactCtx: ReactApplicationContext) : ReactContextBaseJavaM
     fun heartbeatAt(p: Promise) { p.resolve(store.heartbeatAt().toDouble()) }
 
     @ReactMethod
+    fun getDebugMode(p: Promise) { p.resolve(store.isDebugMode()) }
+
+    @ReactMethod
+    fun setDebugMode(on: Boolean, p: Promise) {
+        ProximityLog.i("Module", "setDebugMode $on")
+        store.setDebugMode(on)
+        p.resolve(null)
+    }
+
+    @ReactMethod
     fun captureRssi(mac: String, durationMs: Double, p: Promise) {
         if (captureInFlight != null) {
             p.reject("E_BUSY", "Calibration already in progress")

@@ -84,6 +84,9 @@ class ProximityConfigStore(ctx: Context) {
     fun bootId(): String = prefs.getString("_bootId", "")!!
     fun setBootId(id: String) { prefs.edit().putString("_bootId", id).apply() }
 
+    fun isDebugMode(): Boolean = prefs.getBoolean("_debug", false)
+    fun setDebugMode(on: Boolean) { prefs.edit().putBoolean("_debug", on).apply() }
+
     companion object {
         private const val PREFS_NAME = "proximity_config"
         private const val KNOWN = "_known"
